@@ -1,13 +1,15 @@
 # Mwenza Kenya
 
-Mwenza is a responsive home and business services marketplace for Kenya. Customers can book laundry, cleaning, cooking, fundi, mobile auto care, home support, pest control, and outdoor care from one platform.
+Mwenza is a responsive services marketplace for Kenyan homes, businesses, government agencies, and institutions. Customers can book laundry, cleaning, cooking, fundi, mobile auto care, home support, pest control, and outdoor care from one platform.
 
 ## Product surfaces
 
-- Residential and business service marketplace
-- Four-step home and business booking flow
+- Residential, business, government, and institutional service marketplace
+- Four-step booking flow tailored to each customer segment
 - Eight service detail pages
 - Business service-plan request and client workspace
+- Government and institutional procurement enquiry flow
+- Legal center with customer, provider, privacy, safety, accessibility, and public-sector terms
 - Passwordless account access and registration flow
 - Provider application and work workspace
 - Jobs board with search, filters, and role detail pages

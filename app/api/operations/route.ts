@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { applications, bookings, businessRequests, incidents, providerProfiles } from "../../../db/schema";
-import { createNotification } from "../_notifications";
+import { createNotification, customerNotificationAudience } from "../_notifications";
 import { adminEmail, clean, json, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +61,7 @@ export async function PATCH(request: Request) {
     if (["Completed", "Cancelled"].includes(booking.status)) return json({ error: "Closed bookings cannot be assigned." }, 409);
     await db.update(bookings).set({ assignedProviderId: provider.id, assignedProviderEmail: provider.ownerEmail, assignedProviderName: provider.fullName, status: "Assigned", updatedAt: now }).where(eq(bookings.id, booking.id));
     await Promise.all([
-      createNotification({ recipientEmail: booking.ownerEmail, audience: booking.customerType === "Business" ? "business" : "customer", bookingId: booking.id, title: "Professional assigned", message: `${provider.fullName} has been assigned to ${booking.option}.` }),
+      createNotification({ recipientEmail: booking.ownerEmail, audience: customerNotificationAudience(booking.customerType), bookingId: booking.id, title: "Professional assigned", message: `${provider.fullName} has been assigned to ${booking.option}.` }),
       createNotification({ recipientEmail: provider.ownerEmail, audience: "provider", bookingId: booking.id, title: "New assignment", message: `Review ${booking.option} in ${booking.address.split(",")[0]} for ${booking.scheduledDay}, ${booking.scheduledTime}.` }),
     ]);
     return json({ bookingId: booking.id, providerId: provider.id, providerName: provider.fullName, status: "Assigned", updated: true });
@@ -78,7 +78,7 @@ export async function PATCH(request: Request) {
     if (status === "Completed") timestamps.completedAt = now;
     if (status === "Cancelled") timestamps.cancelledAt = now;
     await db.update(bookings).set({ status, updatedAt: now, ...timestamps }).where(eq(bookings.id, bookingId));
-    await createNotification({ recipientEmail: booking.ownerEmail, audience: booking.customerType === "Business" ? "business" : "customer", bookingId, title: `Booking ${status.toLowerCase()}`, message: `${booking.option} is now marked ${status.toLowerCase()}.` });
+    await createNotification({ recipientEmail: booking.ownerEmail, audience: customerNotificationAudience(booking.customerType), bookingId, title: `Booking ${status.toLowerCase()}`, message: `${booking.option} is now marked ${status.toLowerCase()}.` });
     return json({ bookingId, status, updated: true });
   }
 

@@ -43,6 +43,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   const related = serviceData.filter(item => item.slug !== current.slug).slice(0, 3);
   const bookingHref = `/book?service=${current.slug}`;
   const businessHref = `/book?service=${current.slug}&audience=business`;
+  const governmentHref = `/book?service=${current.slug}&audience=government`;
 
   return <main className="detail-page marketplace-detail" style={{ "--detail-accent": current.accent } as CSSProperties}>
     <SiteHeader/>
@@ -67,7 +68,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <div className="detail-marketplace-grid">
         <figure className="detail-marketplace-image">
           <img src={current.image} alt={`${current.name} professional from Mwenza Kenya`}/>
-          <figcaption>Available for homes and businesses across Nairobi</figcaption>
+          <figcaption>Available for homes, businesses and institutions across Nairobi</figcaption>
         </figure>
         <aside className="detail-booking-card" aria-label={`Book ${current.name}`}>
           <small>STARTING FROM</small>
@@ -112,6 +113,11 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <div>{current.business.map(item => <span key={item}>{item}</span>)}</div>
         <a href={businessHref}>Request business service</a>
       </div>
+      <div id="government-use">
+        <small>GOVERNMENT & INSTITUTIONS</small><h2>Built around public facilities.</h2>
+        <div>{current.business.map(item => <span key={item}>{item}</span>)}</div>
+        <a href={governmentHref}>Request institutional service</a>
+      </div>
     </section>
 
     <section className="detail-standard" id="included">
@@ -145,7 +151,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <div>{related.map(item => <a key={item.slug} href={`/services/${item.slug}`} className="detail-related-card"><img src={item.image} alt=""/><span><small>{item.short}</small><b>{item.name}</b><em>{item.starting}</em></span></a>)}</div>
     </section>
 
-    <section className="detail-next detail-next-marketplace"><small>READY WHEN YOU ARE</small><h2>Let’s get {current.short.toLowerCase()} handled.</h2><p>Tell us what you need, choose a time and review every detail before you confirm.</p><div><a href={bookingHref}>Book this service</a><a href={businessHref}>Book for a business</a></div></section>
+    <section className="detail-next detail-next-marketplace"><small>READY WHEN YOU ARE</small><h2>Let’s get {current.short.toLowerCase()} handled.</h2><p>Tell us what you need, choose a time and review every detail before you confirm.</p><div><a href={bookingHref}>Book this service</a><a href={businessHref}>For business</a><a href={governmentHref}>For government</a></div></section>
 
     <SiteFooter/>
     <div className="detail-mobile-bar"><span><small>From</small><b>{current.starting}</b></span><a href={bookingHref}>Check availability</a></div>

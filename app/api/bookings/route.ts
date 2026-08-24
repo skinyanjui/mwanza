@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { bookings } from "../../../db/schema";
-import { createNotification } from "../_notifications";
+import { createNotification, customerNotificationAudience } from "../_notifications";
 import { clean, json, optionalUserEmail, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       payment: clean(body.payment, 40) || "M-Pesa", total: Number.isFinite(Number(body.total)) ? Math.max(0, Number(body.total)) : null,
       status: "Confirmation pending", createdAt: now, updatedAt: now,
     });
-    await createNotification({ recipientEmail: ownerEmail, audience: customerType === "Business" ? "business" : "customer", bookingId: id, title: "Booking request received", message: `${option} is requested for ${scheduledDay}, ${scheduledTime}. We’ll confirm the team next.` });
+    await createNotification({ recipientEmail: ownerEmail, audience: customerNotificationAudience(customerType), bookingId: id, title: "Booking request received", message: `${option} is requested for ${scheduledDay}, ${scheduledTime}. We’ll confirm the team next.` });
     return json({ id, status: "Confirmation pending" }, 201);
   } catch (error) {
     console.error("booking_create_failed", error);
@@ -65,6 +65,6 @@ export async function PATCH(request: Request) {
   if (time) changes.scheduledTime = time;
   if (!status && !day && !time) return json({ error: "Choose a booking change." }, 400);
   await db.update(bookings).set(changes).where(and(eq(bookings.id, id), eq(bookings.ownerEmail, emailKey)));
-  await createNotification({ recipientEmail: emailKey, audience: booking.customerType === "Business" ? "business" : "customer", bookingId: id, title: status === "Cancelled" ? "Booking cancelled" : "Change request received", message: status === "Cancelled" ? `${booking.option} has been cancelled.` : "Mwenza Operations will confirm the requested arrival window." });
+  await createNotification({ recipientEmail: emailKey, audience: customerNotificationAudience(booking.customerType), bookingId: id, title: status === "Cancelled" ? "Booking cancelled" : "Change request received", message: status === "Cancelled" ? `${booking.option} has been cancelled.` : "Mwenza Operations will confirm the requested arrival window." });
   return json({ id, status: changes.status ?? booking.status, updated: true });
 }

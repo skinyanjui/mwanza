@@ -56,10 +56,11 @@ export default function SiteHeader({accountLabel="Sign in"}:{accountLabel?:strin
               </a>
               <div className="mega-grid">{services.map(service => <a href={service[2]} key={service[0]}><img src={service[3]} alt=""/><span><b>{service[0]}</b><small>{service[1]}</small></span></a>)}</div>
             </div>
-            <div className="mega-bottom"><a href="/account">Manage bookings</a><a href="/provider">Become a provider</a><a href="/jobs">Find a job</a><a href="/franchise">Own a territory</a></div>
+            <div className="mega-bottom"><a href="/government">Government & institutions</a><a href="/account">Manage bookings</a><a href="/provider">Become a provider</a><a href="/jobs">Find a job</a><a href="/franchise">Own a territory</a></div>
           </div>
         </details>
         <a href="/business">For business</a>
+        <a href="/government">Government</a>
         <details className="opportunity-menu" open={openMenu === "opportunities"}>
           <summary aria-expanded={openMenu === "opportunities"} aria-controls="opportunities-panel" onClick={event => { event.preventDefault(); toggle("opportunities"); }}>Work with us <i>⌄</i></summary>
           <div id="opportunities-panel" onClick={closeFromLink}><a href="/provider"><b>Become a service provider</b><small>Flexible work using your skills</small></a><a href="/jobs"><b>Join the Mwenza team</b><small>Operations and office roles</small></a><a href="/franchise"><b>Own a Mwenza territory</b><small>Build a local service business</small></a></div>
@@ -78,14 +79,14 @@ export default function SiteHeader({accountLabel="Sign in"}:{accountLabel?:strin
         <button className="mobile-backdrop" aria-label="Close menu" onClick={() => setOpenMenu(null)}/>
         <div className="mobile-panel" id="mobile-navigation-panel" role="dialog" aria-modal="true" aria-label="Main menu" onClick={closeFromLink}>
           <div className="mobile-panel-head"><a className="brand" href="/"><img src="/mwenza-mark.png" alt=""/>mwenza</a></div>
-          <div className="mobile-quick-actions"><a href="/book"><b>Book a service</b><span>Home or business →</span></a><a href="/account"><b>{accountLabel}</b><span>Bookings and account →</span></a></div>
+          <div className="mobile-quick-actions"><a href="/book"><b>Book a service</b><span>Home, business or institution →</span></a><a href="/account"><b>{accountLabel}</b><span>Bookings and account →</span></a></div>
           <section className="mobile-menu-section">
             <div className="mobile-menu-section-head"><b>Services</b><a href="/#services">View all</a></div>
             <div className="mobile-service-grid">{services.map(service => <a href={service[2]} key={service[0]}><img src={service[3]} alt=""/><span>{service[0]}</span></a>)}</div>
           </section>
           <section className="mobile-menu-section">
             <div className="mobile-menu-section-head"><b>For every kind of work</b></div>
-            <div className="mobile-link-list"><a href="/business"><span><b>For business</b><small>Build a managed service plan</small></span><i>→</i></a><a href="/provider"><span><b>Become a provider</b><small>Turn your skills into flexible work</small></span><i>→</i></a><a href="/jobs"><span><b>Find a job</b><small>Join the Mwenza team</small></span><i>→</i></a><a href="/franchise"><span><b>Own a territory</b><small>Build Mwenza in your area</small></span><i>→</i></a></div>
+            <div className="mobile-link-list"><a href="/business"><span><b>For business</b><small>Build a managed service plan</small></span><i>→</i></a><a href="/government"><span><b>Government & institutions</b><small>Procurement-ready facility services</small></span><i>→</i></a><a href="/provider"><span><b>Become a provider</b><small>Turn your skills into flexible work</small></span><i>→</i></a><a href="/jobs"><span><b>Find a job</b><small>Join the Mwenza team</small></span><i>→</i></a><a href="/franchise"><span><b>Own a territory</b><small>Build Mwenza in your area</small></span><i>→</i></a></div>
           </section>
           <div className="mobile-location"><span><b>Nairobi</b><small>Current service area</small></span><a href="/book">Check an address</a></div>
         </div>

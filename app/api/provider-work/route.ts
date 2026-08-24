@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { bookings, providerProfiles } from "../../../db/schema";
-import { createNotification } from "../_notifications";
+import { createNotification, customerNotificationAudience } from "../_notifications";
 import { clean, json, optionalUserEmail } from "../_shared";
 
 export const dynamic = "force-dynamic";
@@ -88,7 +88,7 @@ export async function PATCH(request: Request) {
     await db.update(bookings).set({ assignedProviderId: profile.id, assignedProviderEmail: email, assignedProviderName: profile.fullName, status: "Provider assigned", acceptedAt: now, updatedAt: now }).where(and(eq(bookings.id, bookingId), isNull(bookings.assignedProviderId)));
     const assigned = await db.select().from(bookings).where(and(eq(bookings.id, bookingId), eq(bookings.assignedProviderEmail, email))).limit(1);
     if (!assigned.length) return json({ error: "Another provider accepted this job first." }, 409);
-    await createNotification({ recipientEmail: booking.ownerEmail, audience: booking.customerType === "Business" ? "business" : "customer", bookingId, title: `${profile.fullName} is assigned`, message: `${booking.option} is assigned for ${booking.scheduledDay}, ${booking.scheduledTime}.` });
+    await createNotification({ recipientEmail: booking.ownerEmail, audience: customerNotificationAudience(booking.customerType), bookingId, title: `${profile.fullName} is assigned`, message: `${booking.option} is assigned for ${booking.scheduledDay}, ${booking.scheduledTime}.` });
     return json({ booking: assigned[0], updated: true });
   }
 
@@ -107,6 +107,6 @@ export async function PATCH(request: Request) {
     start: `${booking.option} is now in progress.`,
     complete: `${booking.option} is complete. You can report an issue from your Mwenza account if anything needs attention.`,
   };
-  await createNotification({ recipientEmail: booking.ownerEmail, audience: booking.customerType === "Business" ? "business" : "customer", bookingId, title: transition.status, message: messages[action as keyof typeof messages] });
+  await createNotification({ recipientEmail: booking.ownerEmail, audience: customerNotificationAudience(booking.customerType), bookingId, title: transition.status, message: messages[action as keyof typeof messages] });
   return json({ bookingId, status: transition.status, updated: true });
 }
