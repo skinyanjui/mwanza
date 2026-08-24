@@ -14,7 +14,7 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseServices, isFirebaseConfigured } from "../lib/firebase-client";
-import { createOrganization, saveAccount, watchAccount } from "../lib/firebase-data";
+import { ensureOrganization, getAccount, saveAccount, watchAccount } from "../lib/firebase-data";
 import type { AccountType, FirebaseAccount } from "../lib/firebase-types";
 
 type RegistrationInput = {
@@ -36,6 +36,7 @@ type FirebaseAuthContextValue = {
   signInWithGoogle: () => Promise<void>;
   register: (input: RegistrationInput) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  sendVerification: () => Promise<void>;
   signOutUser: () => Promise<void>;
   updateAccount: (input: Omit<RegistrationInput, "email" | "password">) => Promise<FirebaseAccount>;
 };
@@ -56,7 +57,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       stopProfile?.();
       setUser(nextUser);
       if (!nextUser) { setProfile(null); setLoading(false); return; }
-      stopProfile = watchAccount(nextUser.uid, (nextProfile) => { setProfile(nextProfile); setLoading(false); });
+      stopProfile = watchAccount(nextUser.uid, (nextProfile) => { setProfile(nextProfile); setLoading(false); }, () => { setProfile(null); setLoading(false); });
     });
   }, []);
 
@@ -74,7 +75,7 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       const services = getFirebaseServices();
       if (!services) throw new Error("Firebase Authentication is not configured.");
       const result = await signInWithPopup(services.auth, new GoogleAuthProvider());
-      const current = await import("../lib/firebase-data").then(({ getAccount }) => getAccount(result.user.uid));
+      const current = await getAccount(result.user.uid);
       if (!current) await saveAccount({ uid: result.user.uid, email: result.user.email ?? "", fullName: result.user.displayName ?? "Mwenza customer", phone: "", serviceArea: "Nairobi", accountType: "Home" }, null);
     },
     async register(input) {
@@ -82,15 +83,19 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
       if (!services) throw new Error("Firebase Authentication is not configured.");
       const credential = await createUserWithEmailAndPassword(services.auth, input.email.trim(), input.password);
       await updateProfile(credential.user, { displayName: input.fullName.trim() });
-      await sendEmailVerification(credential.user);
       const account = await saveAccount({ ...input, uid: credential.user.uid, email: credential.user.email ?? input.email }, null);
-      if (input.accountType !== "Home" && input.businessName) await createOrganization({ ownerUid: credential.user.uid, name: input.businessName, type: input.accountType === "Government" ? "government" : "business" });
-      setProfile(account);
+      if (input.accountType !== "Home" && input.businessName) await ensureOrganization({ ownerUid: credential.user.uid, name: input.businessName, type: input.accountType === "Government" ? "government" : "business" });
+      try { await sendEmailVerification(credential.user); } catch { /* The account remains usable and verification can be resent from Account. */ }
+      setProfile(await getAccount(credential.user.uid) ?? account);
     },
     async resetPassword(email) {
       const services = getFirebaseServices();
       if (!services) throw new Error("Firebase Authentication is not configured.");
       await sendPasswordResetEmail(services.auth, email.trim());
+    },
+    async sendVerification() {
+      if (!user) throw new Error("Sign in before requesting verification.");
+      if (!user.emailVerified) await sendEmailVerification(user);
     },
     async signOutUser() {
       const services = getFirebaseServices();
@@ -99,8 +104,10 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     async updateAccount(input) {
       if (!user) throw new Error("Sign in before updating your account.");
       const next = await saveAccount({ ...input, uid: user.uid, email: user.email ?? profile?.email ?? "" }, profile);
-      setProfile(next);
-      return next;
+      if (input.accountType !== "Home" && input.businessName) await ensureOrganization({ ownerUid: user.uid, name: input.businessName, type: input.accountType === "Government" ? "government" : "business" });
+      const refreshed = await getAccount(user.uid) ?? next;
+      setProfile(refreshed);
+      return refreshed;
     },
   }), [configured, loading, profile, user]);
 

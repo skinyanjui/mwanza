@@ -46,8 +46,8 @@ service firebase.storage {
     }
 
     match /profiles/{uid}/{fileName} {
-      allow read: if signedIn() && (request.auth.uid == uid || isOperations());
-      allow create, update: if signedIn() && request.auth.uid == uid && validDocument();
+      allow read: if signedIn() && ((request.auth.uid == uid && hasRole('customer')) || isOperations());
+      allow create, update: if signedIn() && request.auth.uid == uid && hasRole('customer') && validDocument();
       allow delete: if signedIn() && (request.auth.uid == uid || isOperations());
     }
 
@@ -58,8 +58,14 @@ service firebase.storage {
     }
 
     match /bookings/{bookingId}/jobs/{fileName} {
-      allow read: if signedIn() && (isOperations() || booking(bookingId).ownerUid == request.auth.uid || booking(bookingId).assignedProviderUid == request.auth.uid);
-      allow create, update: if signedIn() && (isOperations() || booking(bookingId).ownerUid == request.auth.uid || booking(bookingId).assignedProviderUid == request.auth.uid) && validJobPhoto();
+      allow read: if signedIn() && (isOperations()
+        || booking(bookingId).ownerUid == request.auth.uid
+        || (booking(bookingId).assignedProviderUid == request.auth.uid && hasRole('provider')));
+      allow create, update: if signedIn()
+        && (isOperations()
+          || booking(bookingId).ownerUid == request.auth.uid
+          || (booking(bookingId).assignedProviderUid == request.auth.uid && hasRole('provider')))
+        && validJobPhoto();
       allow delete: if isOperations();
     }
 

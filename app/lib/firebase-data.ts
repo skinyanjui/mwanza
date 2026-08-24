@@ -43,8 +43,8 @@ export async function getAccount(uid: string): Promise<FirebaseAccount | null> {
   return snapshot.exists() ? snapshot.data() as FirebaseAccount : null;
 }
 
-export function watchAccount(uid: string, callback: (profile: FirebaseAccount | null) => void): Unsubscribe {
-  return onSnapshot(doc(services().db, "accounts", uid), (snapshot) => callback(snapshot.exists() ? snapshot.data() as FirebaseAccount : null));
+export function watchAccount(uid: string, callback: (profile: FirebaseAccount | null) => void, onError?: (reason: Error) => void): Unsubscribe {
+  return onSnapshot(doc(services().db, "accounts", uid), (snapshot) => callback(snapshot.exists() ? snapshot.data() as FirebaseAccount : null), (reason) => onError?.(reason));
 }
 
 export async function saveAccount(input: {
@@ -61,7 +61,7 @@ export async function saveAccount(input: {
   const safeExistingRoles = (existing?.roles ?? []).filter((role) => role === "provider" || role === "operations");
   const profile: FirebaseAccount = {
     uid: input.uid,
-    email: input.email.toLowerCase(),
+    email: input.email.trim(),
     fullName: input.fullName.trim(),
     phone: input.phone.trim(),
     serviceArea: input.serviceArea.trim() || "Nairobi",
@@ -87,6 +87,8 @@ export async function createOrganization(input: {
   contact?: string;
 }) {
   const { db } = services();
+  const ownerAccount = await getAccount(input.ownerUid);
+  if (!ownerAccount) throw new Error("Create your Mwenza account before adding an organization.");
   const id = recordId(input.type === "government" ? "MG" : "MB");
   const now = isoNow();
   const organization: FirebaseOrganization = {
@@ -105,9 +107,61 @@ export async function createOrganization(input: {
   const batch = writeBatch(db);
   batch.set(doc(db, "organizations", id), { ...organization, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
   batch.set(doc(db, "organizations", id, "members", input.ownerUid), { uid: input.ownerUid, role: "owner", createdAt: serverTimestamp() });
-  batch.update(doc(db, "accounts", input.ownerUid), { organizationIds: arrayUnion(id), roles: arrayUnion(input.type), updatedAt: serverTimestamp() });
+  const privilegedRoles = ownerAccount.roles.filter((role) => role === "provider" || role === "operations");
+  batch.update(doc(db, "accounts", input.ownerUid), {
+    organizationIds: arrayUnion(id),
+    roles: Array.from(new Set<MwenzaRole>(["customer", input.type, ...privilegedRoles])),
+    accountType: input.type === "government" ? "Government" : "Business",
+    businessName: organization.name,
+    updatedAt: serverTimestamp(),
+  });
   await batch.commit();
   return organization;
+}
+
+export type AccountOrganization = FirebaseOrganization & { membershipRole: "owner" | "manager" | "billing" | "viewer" };
+
+export async function listAccountOrganizations(uid: string, organizationIds?: string[]) {
+  const { db } = services();
+  const ids = organizationIds ?? (await getAccount(uid))?.organizationIds ?? [];
+  const organizations = await Promise.all(ids.map(async (id) => {
+    const [organizationSnapshot, membershipSnapshot] = await Promise.all([
+      getDoc(doc(db, "organizations", id)),
+      getDoc(doc(db, "organizations", id, "members", uid)),
+    ]);
+    if (!organizationSnapshot.exists() || !membershipSnapshot.exists()) return null;
+    const organization = normalizedDocument(organizationSnapshot.id, organizationSnapshot.data()) as unknown as FirebaseOrganization;
+    return { ...organization, membershipRole: String(membershipSnapshot.data().role ?? "viewer") as AccountOrganization["membershipRole"] };
+  }));
+  return organizations.filter((item): item is AccountOrganization => item !== null);
+}
+
+export async function ensureOrganization(input: {
+  ownerUid: string;
+  name: string;
+  type: OrganizationType;
+  services?: string[];
+  frequency?: string;
+  locationCount?: number;
+  contact?: string;
+}) {
+  const { db } = services();
+  const organizations = await listAccountOrganizations(input.ownerUid);
+  const existing = organizations.find((organization) => organization.type === input.type);
+  if (!existing) return createOrganization(input);
+  if (existing.membershipRole === "owner" || existing.membershipRole === "manager") {
+    const changes = {
+      name: input.name.trim() || existing.name,
+      services: input.services ?? existing.services,
+      frequency: input.frequency ?? existing.frequency,
+      locationCount: Math.max(1, input.locationCount ?? existing.locationCount),
+      contact: input.contact?.trim() ?? existing.contact,
+      updatedAt: serverTimestamp(),
+    };
+    await updateDoc(doc(db, "organizations", existing.id), changes);
+    return { ...existing, ...changes, updatedAt: isoNow() } as AccountOrganization;
+  }
+  return existing;
 }
 
 export async function createBooking(input: Record<string, unknown>, ownerUid: string, organizationId?: string | null) {
@@ -145,8 +199,29 @@ export function watchOwnBookings(uid: string, callback: (items: DocumentData[]) 
 }
 
 export async function updateOwnBooking(id: string, changes: Record<string, unknown>) {
+  const { db } = services();
   const definedChanges = Object.fromEntries(Object.entries(changes).filter(([, value]) => value !== undefined));
-  await updateDoc(doc(services().db, "bookings", id), { ...definedChanges, updatedAt: serverTimestamp() });
+  const bookingRef = doc(db, "bookings", id);
+  const bookingSnapshot = await getDoc(bookingRef);
+  if (!bookingSnapshot.exists()) throw new Error("Booking not found.");
+  const status = typeof definedChanges.status === "string" ? definedChanges.status : null;
+  const event = status === "Reschedule requested" ? "Customer requested reschedule" : status === "Cancelled" ? "Customer cancelled booking" : null;
+  const batch = writeBatch(db);
+  batch.update(bookingRef, { ...definedChanges, updatedAt: serverTimestamp() });
+  if (event) {
+    const booking = bookingSnapshot.data();
+    batch.set(doc(db, "serviceRecords", recordId("MSR")), {
+      bookingId: id,
+      ownerUid: booking.ownerUid,
+      organizationId: booking.organizationId ?? null,
+      providerUid: booking.assignedProviderUid ?? null,
+      event,
+      status,
+      notes: status === "Cancelled" ? "Cancelled from the customer account." : "A new arrival window was requested from the customer account.",
+      createdAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
 }
 
 export async function submitProviderApplication(input: Record<string, unknown>, ownerUid: string) {
@@ -217,6 +292,7 @@ export async function firebaseOperationsAction(body: Record<string, unknown>) {
     const providerId = String(body.providerId ?? "");
     const provider = await getDoc(doc(db, "providerProfiles", providerId));
     if (!provider.exists()) throw new Error("Provider profile not found.");
+    if (provider.data().status !== "Active") throw new Error("Only active providers can be assigned.");
     await updateDoc(doc(db, "bookings", bookingId), { assignedProviderUid: providerId, assignedProviderId: providerId, assignedProviderName: provider.data().fullName, status: "Assigned", updatedAt: now });
     await appendServiceRecord({ bookingId, providerUid: providerId, event: "Provider assigned", status: "Assigned" });
     return { status: "Assigned" };
@@ -295,6 +371,12 @@ export async function firebaseProviderAction(uid: string, body: Record<string, u
     const bookingRef = doc(db, "bookings", bookingId);
     const snapshot = await transaction.get(bookingRef);
     if (!snapshot.exists() || snapshot.data().assignedProviderUid !== uid) throw new Error("This booking is not assigned to your account.");
+    const currentStatus = String(snapshot.data().status ?? "");
+    const validTransition = (action === "travel" && ["Assigned", "Provider assigned"].includes(currentStatus))
+      || (action === "arrive" && currentStatus === "En route")
+      || (action === "start" && currentStatus === "Arrived")
+      || (action === "complete" && currentStatus === "In progress");
+    if (!validTransition) throw new Error(`Complete the current ${currentStatus.toLowerCase() || "job"} step first.`);
     transaction.update(bookingRef, { status: nextStatus, updatedAt: serverTimestamp(), ...(action === "travel" ? { enRouteAt: serverTimestamp() } : action === "arrive" ? { arrivedAt: serverTimestamp() } : action === "start" ? { startedAt: serverTimestamp() } : { completedAt: serverTimestamp() }) });
   });
   await appendServiceRecord({ bookingId, providerUid: uid, event: `Provider marked ${nextStatus}`, status: nextStatus });

@@ -56,7 +56,7 @@ Use `NEXT_PUBLIC_FIREBASE_APPCHECK_DEBUG=true` only in local development and reg
 
 ## 5. Verify locally
 
-The Emulator Suite test covers owner isolation, privileged-role protection, booking visibility, provider application privacy, private profile uploads, and default-deny behavior:
+The Emulator Suite test covers role escalation, organization ownership and manager limits, managed-booking tenancy, ordered provider status changes, append-only service records, booking photo access, document-type checks, and default-deny behavior:
 
 ```bash
 npm run test:firebase-rules

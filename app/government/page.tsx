@@ -9,7 +9,7 @@ import SiteHeader from "../components/site-header";
 import { useFirebaseAuth } from "../components/firebase-auth-provider";
 import { marketplaceServices } from "../data/marketplace-services";
 import { firebaseFetch } from "../lib/firebase-api";
-import { createOrganization } from "../lib/firebase-data";
+import { ensureOrganization } from "../lib/firebase-data";
 
 const services = marketplaceServices.map(service => ({ name: service.governmentTitle, detail: service.governmentCopy, image: service.businessImage, slug: service.slug }));
 
@@ -41,7 +41,7 @@ export default function GovernmentPage() {
     setSubmitting(true); setError("");
     try {
       if (firebase.configured && !firebase.user) { window.location.assign(`/account?setup=government&returnTo=${encodeURIComponent("/government#procurement")}`); return; }
-      if (firebase.configured && firebase.user) await createOrganization({ ownerUid: firebase.user.uid, name: organization, type: "government", services: selected, frequency, locationCount: Number(locations), contact });
+      if (firebase.configured && firebase.user) await ensureOrganization({ ownerUid: firebase.user.uid, name: organization, type: "government", services: selected, frequency, locationCount: Number(locations), contact });
       else {
         const response = await firebaseFetch("/api/business-requests", {
           method: "POST",
