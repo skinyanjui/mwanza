@@ -1495,31 +1495,19 @@ code, kbd, pre, samp { font-family: var(--font-mono); }
 }
 .hero-booking-action {
   min-width: 168px;
-  min-height: 52px;
+  min-height: var(--control-height);
   margin: 6px;
-  padding: 8px 16px;
+  padding: 0 18px;
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  gap: 2px;
   border-radius: var(--component-radius);
   background: var(--audience-accent);
   color: #fff;
-  text-decoration: none;
-}
-.hero-booking-action strong {
   font-size: var(--type-control);
   font-weight: 720;
+  text-decoration: none;
   white-space: nowrap;
-}
-.hero-booking-action small {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 11px;
-  font-weight: 550;
-  letter-spacing: 0;
-  text-transform: none;
 }
 .hero-booking-action:hover {
   filter: brightness(0.94);
@@ -1548,9 +1536,7 @@ code, kbd, pre, samp { font-family: var(--font-mono); }
   }
   .hero-booking-action {
     width: auto;
-    min-height: 52px;
-    align-items: center;
-    text-align: center;
+    min-height: 48px;
   }
 }
 
