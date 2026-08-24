@@ -2,7 +2,7 @@ import { and, desc, eq, or } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { bookings, incidents } from "../../../db/schema";
 import { createNotification } from "../_notifications";
-import { adminEmail, clean, json, optionalUserEmail, recordId } from "../_shared";
+import { adminEmail, appCheckGuard, clean, json, optionalUserEmail, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,7 @@ const allowedReporterTypes = new Set(["customer", "business", "provider"]);
 const allowedIncidentStatuses = new Set(["Open", "Investigating", "Waiting on customer", "Resolved", "Closed"]);
 
 export async function POST(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   const email = await optionalUserEmail();
   if (!email) return json({ error: "Sign in before reporting an issue." }, 401);
   try {
@@ -51,6 +52,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   if (!await adminEmail()) return json({ error: "Operations access required." }, 403);
   const body = await request.json() as Record<string, unknown>;
   const id = clean(body.id, 50);

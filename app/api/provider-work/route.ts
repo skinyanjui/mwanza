@@ -2,7 +2,7 @@ import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { bookings, providerProfiles } from "../../../db/schema";
 import { createNotification, customerNotificationAudience } from "../_notifications";
-import { clean, json, optionalUserEmail } from "../_shared";
+import { appCheckGuard, clean, json, optionalUserEmail } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +60,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   const userEmail = await optionalUserEmail();
   if (!userEmail) return json({ error: "Sign in to update provider work." }, 401);
   const email = userEmail.toLowerCase();

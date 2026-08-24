@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { notifications } from "../../../db/schema";
-import { clean, json, optionalUserEmail } from "../_shared";
+import { appCheckGuard, clean, json, optionalUserEmail } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +14,11 @@ export async function GET() {
     .where(eq(notifications.recipientEmail, email.toLowerCase()))
     .orderBy(desc(notifications.createdAt))
     .limit(40);
-  return json({ notifications: rows, unread: rows.filter((item: any) => item.status === "Unread").length });
+  return json({ notifications: rows, unread: rows.filter((item) => item.status === "Unread").length });
 }
 
 export async function PATCH(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   const email = await optionalUserEmail();
   if (!email) return json({ error: "Sign in to update notifications." }, 401);
   const body = await request.json() as Record<string, unknown>;

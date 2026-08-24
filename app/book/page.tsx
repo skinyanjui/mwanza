@@ -3,6 +3,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AudienceSelector from "../components/audience-selector";
+import { useFirebaseAuth } from "../components/firebase-auth-provider";
+import { firebaseFetch } from "../lib/firebase-api";
+import { createBooking } from "../lib/firebase-data";
 
 const catalog = {
   laundry: { name: "Laundry", image: "/service-laundry.webp", businessImage: "/business-linen.webp", options: [["Wash & fold",180,"per kg"],["Wash & iron",260,"per kg"],["Dry cleaning",450,"starting"],["Duvets & bedding",650,"starting"]] },
@@ -25,6 +28,7 @@ const customerOptions = [
 ] satisfies { value: CustomerType; label: string; description: string }[];
 
 export default function BookPage() {
+  const firebase = useFirebaseAuth();
   const [step, setStep] = useState(1);
   const [service, setService] = useState<ServiceKey>("laundry");
   const [option, setOption] = useState(0);
@@ -85,8 +89,14 @@ export default function BookPage() {
     setSubmitting(true); setSubmitError("");
     const payload = { customerType, company, service: current.name, option: selected[0], address, instructions, scope, frequency, locations, day: dates[day].label, date: dates[day].date, time, name, contact, payment, total };
     try {
-      const response = await fetch("/api/bookings", { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload) });
-      const result = await response.json(); if (!response.ok) throw new Error(result.error || "Could not save booking");
+      if (firebase.configured && !firebase.user) {
+        saveDraft();
+        window.location.assign(`/account?returnTo=${encodeURIComponent("/book")}`);
+        return;
+      }
+      const result = firebase.configured && firebase.user
+        ? await createBooking(payload, firebase.user.uid, firebase.profile?.organizationIds[0] ?? null)
+        : await firebaseFetch("/api/bookings", { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify(payload) }).then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not save booking"); return data; });
       const booking = { id: result.id, ...payload, status: result.status, createdAt: new Date().toISOString() };
       const existing = JSON.parse(window.localStorage.getItem("mwenza_bookings") || "[]");
       window.localStorage.setItem("mwenza_bookings", JSON.stringify([booking, ...existing.filter((item:{id?:string})=>item.id!==result.id)].slice(0, 12)));

@@ -6,7 +6,10 @@ import SectionHeading from "../components/section-heading";
 import SelectionGrid from "../components/selection-grid";
 import SiteHeader from "../components/site-header";
 import SiteFooter from "../components/site-footer";
+import { useFirebaseAuth } from "../components/firebase-auth-provider";
 import { marketplaceServices } from "../data/marketplace-services";
+import { firebaseFetch } from "../lib/firebase-api";
+import { createOrganization } from "../lib/firebase-data";
 
 const services = marketplaceServices.map(service => ({ name: service.businessTitle, detail: service.businessCopy, image: service.businessImage }));
 
@@ -20,6 +23,7 @@ const industries = [
 ];
 
 export default function BusinessPage() {
+  const firebase = useFirebaseAuth();
   const [selected, setSelected] = useState<string[]>(["Commercial cleaning"]);
   const [frequency, setFrequency] = useState("Weekly");
   const [submitted, setSubmittedState] = useState(false);
@@ -33,7 +37,7 @@ export default function BusinessPage() {
   const setSubmitted = async (next:boolean) => {
     if(!next){setSubmittedState(false);setRequestError("");return}
     if(!requestReady||submitting)return; setSubmitting(true); setRequestError("");
-    try{const response=await fetch("/api/business-requests",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({businessName,services:selected,frequency,locationCount:Number(locationCount),contact})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not save request");setSubmittedState(true)}catch(reason){setRequestError(reason instanceof Error?reason.message:"Could not save request")}finally{setSubmitting(false)}
+    try{if(firebase.configured&&!firebase.user){window.location.assign(`/account?setup=business&returnTo=${encodeURIComponent("/business#quote")}`);return}if(firebase.configured&&firebase.user)await createOrganization({ownerUid:firebase.user.uid,name:businessName,type:"business",services:selected,frequency,locationCount:Number(locationCount),contact});else{const response=await firebaseFetch("/api/business-requests",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({businessName,services:selected,frequency,locationCount:Number(locationCount),contact})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not save request")}setSubmittedState(true)}catch(reason){setRequestError(reason instanceof Error?reason.message:"Could not save request")}finally{setSubmitting(false)}
   };
 
   return <main className="biz-page">

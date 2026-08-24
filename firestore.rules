@@ -1,0 +1,132 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function accountPath(uid) {
+      return /databases/$(database)/documents/accounts/$(uid);
+    }
+
+    function account() {
+      return get(accountPath(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return signedIn() && exists(accountPath(request.auth.uid)) && role in account().roles;
+    }
+
+    function isOperations() {
+      return hasRole('operations');
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function memberPath(orgId, uid) {
+      return /databases/$(database)/documents/organizations/$(orgId)/members/$(uid);
+    }
+
+    function isOrgMember(orgId) {
+      return signedIn() && orgId != null && exists(memberPath(orgId, request.auth.uid));
+    }
+
+    function isOrgManager(orgId) {
+      return isOrgMember(orgId) && get(memberPath(orgId, request.auth.uid)).data.role in ['owner', 'manager'];
+    }
+
+    function bookingPath(bookingId) {
+      return /databases/$(database)/documents/bookings/$(bookingId);
+    }
+
+    function booking(bookingId) {
+      return get(bookingPath(bookingId)).data;
+    }
+
+    match /accounts/{uid} {
+      allow create: if isSelf(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.roles is list
+        && request.resource.data.roles.toSet().hasOnly(['customer', 'business', 'government'])
+        && request.resource.data.status == 'Active';
+      allow read: if isSelf(uid) || isOperations();
+      allow update: if isOperations() || (isSelf(uid)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.roles.toSet().difference(resource.data.roles.toSet()).hasOnly(['customer', 'business', 'government'])
+        && resource.data.roles.toSet().difference(request.resource.data.roles.toSet()).hasOnly(['customer', 'business', 'government']));
+      allow delete: if isOperations();
+    }
+
+    match /organizations/{orgId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.type in ['business', 'government'];
+      allow read: if isOperations() || isOrgMember(orgId);
+      allow update: if isOperations() || isOrgManager(orgId);
+      allow delete: if isOperations();
+
+      match /members/{uid} {
+        allow read: if isOperations() || isOrgMember(orgId);
+        allow create: if isOperations()
+          || (isSelf(uid) && getAfter(/databases/$(database)/documents/organizations/$(orgId)).data.ownerUid == uid)
+          || isOrgManager(orgId);
+        allow update, delete: if isOperations() || isOrgManager(orgId);
+      }
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && (request.resource.data.organizationId == null || isOrgMember(request.resource.data.organizationId))
+        && request.resource.data.status == 'Confirmation pending';
+      allow read: if isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || (signedIn() && resource.data.assignedProviderUid == request.auth.uid && hasRole('provider'))
+        || isOrgMember(resource.data.organizationId);
+      allow update: if isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'scheduledDay', 'scheduledDate', 'scheduledTime', 'cancelledAt', 'updatedAt'])
+          && request.resource.data.status in ['Confirmation pending', 'Reschedule requested', 'Cancelled'])
+        || (signedIn() && resource.data.assignedProviderUid == request.auth.uid && hasRole('provider')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt', 'enRouteAt', 'arrivedAt', 'startedAt', 'completedAt', 'updatedAt'])
+          && request.resource.data.status in ['Provider assigned', 'En route', 'Arrived', 'In progress', 'Completed']);
+      allow delete: if isOperations();
+    }
+
+    match /providerApplications/{applicationId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'Received';
+      allow read: if isOperations() || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow update, delete: if isOperations();
+    }
+
+    match /providerProfiles/{uid} {
+      allow read: if isOperations() || isSelf(uid);
+      allow create, delete: if isOperations();
+      allow update: if isOperations() || (isSelf(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptingWork', 'updatedAt']));
+    }
+
+    match /serviceRecords/{recordId} {
+      allow create: if isOperations()
+        || (signedIn() && getAfter(bookingPath(request.resource.data.bookingId)).data.ownerUid == request.auth.uid)
+        || (signedIn() && getAfter(bookingPath(request.resource.data.bookingId)).data.assignedProviderUid == request.auth.uid && hasRole('provider'));
+      allow read: if isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || (signedIn() && resource.data.providerUid == request.auth.uid && hasRole('provider'))
+        || isOrgMember(resource.data.organizationId);
+      allow update, delete: if isOperations();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

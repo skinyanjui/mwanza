@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 
 import { useState } from "react";
+import { firebaseFetch } from "../../lib/firebase-api";
 
 export default function ApplyPanel({ title }: { title: string }) {
   const [sent, setSent] = useState(false);
@@ -14,7 +15,7 @@ export default function ApplyPanel({ title }: { title: string }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const ready = name.trim().length > 1 && contact.trim().length > 5 && location.trim().length > 1 && experience.trim().length > 19;
-  const submit=async()=>{if(!ready||sending)return;setSending(true);setError("");try{const details=workLink.trim()?`${experience}\n\nWork sample or CV: ${workLink.trim()}`:experience;const response=await fetch("/api/applications",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({applicationType:"job",roleOrTerritory:title,fullName:name,contact,location,details})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not submit application");setApplicationId(data.id);setSent(true)}catch(reason){setError(reason instanceof Error?reason.message:"Could not submit application")}finally{setSending(false)}};
+  const submit=async()=>{if(!ready||sending)return;setSending(true);setError("");try{const details=workLink.trim()?`${experience}\n\nWork sample or CV: ${workLink.trim()}`:experience;const response=await firebaseFetch("/api/applications",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({applicationType:"job",roleOrTerritory:title,fullName:name,contact,location,details})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not submit application");setApplicationId(data.id);setSent(true)}catch(reason){setError(reason instanceof Error?reason.message:"Could not submit application")}finally{setSending(false)}};
 
   if (sent) return <aside className="job-apply-panel" aria-live="polite">
     <div className="job-apply-success">

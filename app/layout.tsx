@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { FirebaseAuthProvider } from "./components/firebase-auth-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,7 +22,6 @@ export const metadata: Metadata = {
     description: "Trusted services for homes, businesses, government agencies and institutions across Nairobi.",
     images: ["/og.jpg"],
   },
-  other: { "codex-preview": "development" },
 };
 
 export const viewport: Viewport = {
@@ -38,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased"><FirebaseAuthProvider>{children}</FirebaseAuthProvider></body>
     </html>
   );
 }

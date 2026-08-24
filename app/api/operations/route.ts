@@ -2,7 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { applications, bookings, businessRequests, incidents, providerProfiles } from "../../../db/schema";
 import { createNotification, customerNotificationAudience } from "../_notifications";
-import { adminEmail, clean, json, recordId } from "../_shared";
+import { adminEmail, appCheckGuard, clean, json, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +41,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   if (!await adminEmail()) return json({ error: "Operations access required." }, 403);
   const body = await request.json() as Record<string, unknown>;
   const action = clean(body.action, 40);

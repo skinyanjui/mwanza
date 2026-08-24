@@ -1,4 +1,5 @@
 import { getChatGPTUser } from "../chatgpt-auth";
+import { getFirebaseServerRoles, getFirebaseServerUser, verifyFirebaseAppCheck } from "../lib/firebase-server";
 
 export function json(data: unknown, status = 200) {
   return Response.json(data, { status, headers: { "cache-control": "no-store" } });
@@ -13,14 +14,17 @@ export function recordId(prefix: string) {
 }
 
 export async function optionalUserEmail() {
-  return (await getChatGPTUser())?.email ?? null;
+  return (await getFirebaseServerUser())?.email ?? (await getChatGPTUser())?.email ?? null;
+}
+
+export async function appCheckGuard(request: Request) {
+  return await verifyFirebaseAppCheck(request) ? null : json({ error: "App verification failed. Refresh the page and try again." }, 401);
 }
 
 export async function adminEmail() {
-  const email = await optionalUserEmail();
-  const rawList = process.env.MWENZA_ADMIN_EMAILS || "samuel.kinyanjui.sk@gmail.com,admin@mwenza.co.ke,preview@mwenza.co.ke";
-  const configured = rawList.toLowerCase().split(",").map(item => item.trim()).filter(Boolean);
-  if (email && configured.includes(email.toLowerCase())) return email;
-  if (!email) return "admin@mwenza.co.ke";
-  return null;
+  const firebaseUser = await getFirebaseServerUser();
+  if (firebaseUser && (await getFirebaseServerRoles()).includes("operations")) return firebaseUser.email ?? `firebase:${firebaseUser.uid}`;
+  const email = (await getChatGPTUser())?.email ?? null;
+  const configured = (process.env.MWENZA_ADMIN_EMAILS ?? "").toLowerCase().split(",").map(item => item.trim()).filter(Boolean);
+  return email && configured.includes(email.toLowerCase()) ? email : null;
 }

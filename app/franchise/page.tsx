@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
 import { trapDialogFocus } from "../components/dialog-focus";
+import { firebaseFetch } from "../lib/firebase-api";
 
 const territories = [
   ["Nairobi East", "Embakasi · Donholm · Utawala", "Priority", "Urban launch"],
@@ -51,7 +52,7 @@ export default function FranchisePage() {
     setSending(true);
     setError("");
     try {
-      const response = await fetch("/api/applications", {
+      const response = await firebaseFetch("/api/applications", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ applicationType: "franchise", roleOrTerritory: territory, fullName: form.name, contact: form.contact, location: form.location, details: form.details }),

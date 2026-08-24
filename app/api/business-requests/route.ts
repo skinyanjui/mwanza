@@ -1,11 +1,12 @@
 import { desc } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { businessRequests } from "../../../db/schema";
-import { adminEmail, clean, json, optionalUserEmail, recordId } from "../_shared";
+import { adminEmail, appCheckGuard, clean, json, optionalUserEmail, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   try {
     const body = await request.json() as Record<string, unknown>;
     const businessName = clean(body.businessName, 180); const contact = clean(body.contact, 160);

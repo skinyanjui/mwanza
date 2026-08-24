@@ -835,6 +835,10 @@ body{font-size:var(--type-copy);line-height:1.5}
 .auth-card label{font-size:12px}
 .auth-card label input{min-height:48px;margin-top:6px;padding:11px 13px;font-size:14px}
 .auth-card .signin-submit{min-height:48px;margin-top:10px;padding:0 15px;font-size:13px;cursor:pointer}
+.firebase-signin-form{display:grid;gap:11px}.firebase-signin-form label{display:block}.firebase-signin-form .signin-submit{margin-top:2px}
+.auth-provider-divider{display:flex;align-items:center;gap:10px;margin:12px 0;color:#89938d;font-size:10px;text-transform:uppercase;letter-spacing:.12em}.auth-provider-divider:before,.auth-provider-divider:after{content:"";height:1px;flex:1;background:var(--line)}
+.auth-provider-button{width:100%;min-height:46px;border:1px solid #d7ded8;border-radius:var(--component-radius);background:#fff;color:var(--ink);font-size:12px;font-weight:760;cursor:pointer}.auth-provider-button:hover{border-color:#aebbb2;background:#f8faf8}.auth-provider-button:disabled,.auth-reset-button:disabled{opacity:.5;cursor:not-allowed}
+.auth-reset-button{width:auto;margin:10px auto 0;display:block;padding:4px 0;border:0;background:transparent;color:var(--green);font-size:11px;font-weight:730;cursor:pointer}
 .auth-more{margin-top:12px}.auth-more>summary{min-height:42px;font-size:12px}.auth-more .signin-provider-grid{grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
 .auth-more .signin-provider-grid button,.auth-more .signin-provider-grid .provider-passkey{grid-column:auto;min-height:42px;padding:0 10px}
 .auth-more .signin-provider-grid button b{font-size:12px}.auth-more .signin-provider-grid button small{display:none}
@@ -854,6 +858,7 @@ body{font-size:var(--type-copy);line-height:1.5}
 .auth-secondary-row button,.auth-secondary-row a{width:auto;min-height:38px;padding:0 12px;border:1px solid #d7ded8;border-radius:var(--component-radius);background:#fff;color:var(--green);font-size:11px;font-weight:720;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .auth-secondary-row button:hover,.auth-secondary-row a:hover{border-color:#aebbb2;background:#f8faf8}
 .auth-account-types{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0 4px}
+.auth-account-types-three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .auth-account-types button{min-height:88px;padding:14px;border:1px solid #dbe1dc;border-radius:var(--component-radius);background:#fff;color:var(--ink);text-align:left;cursor:pointer}
 .auth-account-types button.selected{padding:13px;border:2px solid var(--green);background:#eef6f0;box-shadow:0 0 0 3px #e1eee5}
 .auth-account-types b,.auth-account-types small{display:block}.auth-account-types b{font-size:14px}.auth-account-types small{margin-top:5px;color:#6b776f;font-size:11px;line-height:1.35}
@@ -877,7 +882,7 @@ body{font-size:var(--type-copy);line-height:1.5}
 }
 
 @media(max-width:460px){
-  .auth-form-side{padding-left:14px;padding-right:14px}.auth-mobile-brand .brand{font-size:22px}.auth-card h2{font-size:30px}.auth-primary-link{min-height:47px}.auth-account-types{gap:6px}.auth-account-types button{min-height:82px;padding:12px}.auth-account-types button.selected{padding:11px}.auth-access-links{grid-template-columns:1fr}.auth-profile-grid{gap:8px}.auth-more .signin-provider-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.auth-more .signin-provider-grid button{padding:0 6px}.auth-secondary-row{gap:8px}.auth-secondary-row button,.auth-secondary-row a{font-size:11px}
+  .auth-form-side{padding-left:14px;padding-right:14px}.auth-mobile-brand .brand{font-size:22px}.auth-card h2{font-size:30px}.auth-primary-link{min-height:47px}.auth-account-types{gap:6px}.auth-account-types-three{grid-template-columns:1fr}.auth-account-types button{min-height:76px;padding:11px}.auth-account-types button.selected{padding:10px}.auth-access-links{grid-template-columns:1fr}.auth-profile-grid{gap:8px}.auth-more .signin-provider-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.auth-more .signin-provider-grid button{padding:0 6px}.auth-secondary-row{gap:8px}.auth-secondary-row button,.auth-secondary-row a{font-size:11px}
 }
 
 /* Account profile, security and workspace access */
@@ -891,6 +896,10 @@ body{font-size:var(--type-copy);line-height:1.5}
 
 @media(max-width:1050px){.account-settings-grid{grid-template-columns:1fr}.account-access-card>div{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.account-profile-card,.account-security-card,.account-access-card{padding:16px}.account-profile-fields{grid-template-columns:1fr}.account-profile-fields .account-wide-field{grid-column:auto}.account-access-card>div{grid-template-columns:1fr}.auth-secondary-row{justify-content:flex-start;flex-wrap:wrap}.auth-coming-methods{grid-template-columns:1fr}.auth-secondary-row button,.auth-secondary-row a{min-height:42px}}
+
+/* Secure Firebase Storage upload control */
+.document-upload{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;margin-top:14px;padding:14px 15px;border:1px dashed #b9c7bc;border-radius:var(--component-radius);background:#f8faf8;cursor:pointer}.document-upload:hover{border-color:var(--green);background:#f1f7f2}.document-upload>span{min-width:0}.document-upload b,.document-upload small{display:block}.document-upload b{overflow:hidden;text-overflow:ellipsis;color:var(--ink);font-size:12px;white-space:nowrap}.document-upload small{margin-top:4px;color:#708078;font-size:10px}.document-upload input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.document-upload i{min-height:36px;display:inline-flex;align-items:center;padding:0 11px;border-radius:var(--component-radius);background:var(--green);color:#fff;font-size:10px;font-style:normal;font-weight:780;white-space:nowrap}.account-document-vault{margin-top:14px}
+@media(max-width:430px){.document-upload{grid-template-columns:1fr;gap:10px}.document-upload i{width:max-content}.document-upload b{white-space:normal}}
 
 /* Final eight-service layout override: keep audience states geometrically stable. */
 :where(h1,h2,h3,h4){text-wrap:pretty}

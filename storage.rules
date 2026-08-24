@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function account() {
+      return firestore.get(/databases/(default)/documents/accounts/$(request.auth.uid)).data;
+    }
+
+    function hasRole(role) {
+      return signedIn()
+        && firestore.exists(/databases/(default)/documents/accounts/$(request.auth.uid))
+        && role in account().roles;
+    }
+
+    function isOperations() {
+      return hasRole('operations');
+    }
+
+    function isOrgMember(orgId) {
+      return signedIn() && firestore.exists(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+    }
+
+    function isOrgManager(orgId) {
+      return isOrgMember(orgId)
+        && firestore.get(/databases/(default)/documents/organizations/$(orgId)/members/$(request.auth.uid)).data.role in ['owner', 'manager'];
+    }
+
+    function booking(bookingId) {
+      return firestore.get(/databases/(default)/documents/bookings/$(bookingId)).data;
+    }
+
+    function validDocument() {
+      return request.resource != null
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('(image/.*|application/pdf|application/msword|application/vnd.openxmlformats-officedocument.*)');
+    }
+
+    function validJobPhoto() {
+      return request.resource != null
+        && request.resource.size <= 20 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /profiles/{uid}/{fileName} {
+      allow read: if signedIn() && (request.auth.uid == uid || isOperations());
+      allow create, update: if signedIn() && request.auth.uid == uid && validDocument();
+      allow delete: if signedIn() && (request.auth.uid == uid || isOperations());
+    }
+
+    match /providers/{uid}/{fileName} {
+      allow read: if signedIn() && (request.auth.uid == uid || isOperations());
+      allow create, update: if signedIn() && request.auth.uid == uid && validDocument();
+      allow delete: if isOperations();
+    }
+
+    match /bookings/{bookingId}/jobs/{fileName} {
+      allow read: if signedIn() && (isOperations() || booking(bookingId).ownerUid == request.auth.uid || booking(bookingId).assignedProviderUid == request.auth.uid);
+      allow create, update: if signedIn() && (isOperations() || booking(bookingId).ownerUid == request.auth.uid || booking(bookingId).assignedProviderUid == request.auth.uid) && validJobPhoto();
+      allow delete: if isOperations();
+    }
+
+    match /organizations/{orgId}/invoices/{fileName} {
+      allow read: if isOperations() || isOrgMember(orgId);
+      allow create, update: if isOperations() && validDocument();
+      allow delete: if isOperations();
+    }
+
+    match /organizations/{orgId}/procurement/{fileName} {
+      allow read: if isOperations() || isOrgMember(orgId);
+      allow create, update: if (isOperations() || isOrgManager(orgId)) && validDocument();
+      allow delete: if isOperations();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

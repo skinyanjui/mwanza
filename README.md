@@ -10,7 +10,7 @@ Mwenza is a responsive services marketplace for Kenyan homes, businesses, govern
 - Business service-plan request and client workspace
 - Government and institutional procurement enquiry flow
 - Legal center with customer, provider, privacy, safety, accessibility, and public-sector terms
-- Passwordless account access and registration flow
+- Firebase email/password and Google account access with customer, provider, business, government, and operations roles
 - Provider application and work workspace
 - Jobs board with search, filters, and role detail pages
 - Franchise opportunities and territory enquiries
@@ -30,11 +30,16 @@ Quality checks:
 ```bash
 npm run lint
 npm test
+npm run test:firebase-rules
 ```
 
 ## Stack
 
-Next.js, React, TypeScript, Vinext, Cloudflare Workers/D1, and Drizzle ORM.
+Next.js, React, TypeScript, Vinext, Firebase Authentication, Firestore, Cloud Storage, App Check, Cloudflare Workers/D1, and Drizzle ORM.
+
+## Firebase
+
+The Firebase integration activates when the variables in `.env.example` are configured. Until then, the existing ChatGPT/D1 flows remain available. Setup, deployment, role bootstrap, and enforcement steps are in [docs/firebase-setup.md](docs/firebase-setup.md).
 
 ## Live site
 

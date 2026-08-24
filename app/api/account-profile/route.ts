@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "../../chatgpt-auth";
 import { getDb } from "../../../db";
 import { accountProfiles } from "../../../db/schema";
-import { clean, json } from "../_shared";
+import { appCheckGuard, clean, json } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   const user = await getChatGPTUser();
   if (!user) return json({ error: "Sign in before creating an account." }, 401);
 

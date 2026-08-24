@@ -6,7 +6,10 @@ import SectionHeading from "../components/section-heading";
 import SelectionGrid from "../components/selection-grid";
 import SiteFooter from "../components/site-footer";
 import SiteHeader from "../components/site-header";
+import { useFirebaseAuth } from "../components/firebase-auth-provider";
 import { marketplaceServices } from "../data/marketplace-services";
+import { firebaseFetch } from "../lib/firebase-api";
+import { createOrganization } from "../lib/firebase-data";
 
 const services = marketplaceServices.map(service => ({ name: service.governmentTitle, detail: service.governmentCopy, image: service.businessImage, slug: service.slug }));
 
@@ -20,6 +23,7 @@ const institutions = [
 ];
 
 export default function GovernmentPage() {
+  const firebase = useFirebaseAuth();
   const [selected, setSelected] = useState<string[]>(["Public facility cleaning"]);
   const [organization, setOrganization] = useState("");
   const [entityType, setEntityType] = useState("Government agency");
@@ -36,13 +40,17 @@ export default function GovernmentPage() {
     if (!ready) return;
     setSubmitting(true); setError("");
     try {
-      const response = await fetch("/api/business-requests", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ businessName: `${organization} · ${entityType}`, services: selected, frequency, locationCount: Number(locations), contact }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Could not save request");
+      if (firebase.configured && !firebase.user) { window.location.assign(`/account?setup=government&returnTo=${encodeURIComponent("/government#procurement")}`); return; }
+      if (firebase.configured && firebase.user) await createOrganization({ ownerUid: firebase.user.uid, name: organization, type: "government", services: selected, frequency, locationCount: Number(locations), contact });
+      else {
+        const response = await firebaseFetch("/api/business-requests", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ businessName: `${organization} · ${entityType}`, services: selected, frequency, locationCount: Number(locations), contact }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not save request");
+      }
       setSubmitted(true);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not save request");

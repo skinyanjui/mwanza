@@ -2,11 +2,12 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { bookings } from "../../../db/schema";
 import { createNotification, customerNotificationAudience } from "../_notifications";
-import { clean, json, optionalUserEmail, recordId } from "../_shared";
+import { appCheckGuard, clean, json, optionalUserEmail, recordId } from "../_shared";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   try {
     const body = await request.json() as Record<string, unknown>;
     const customerType = clean(body.customerType, 20);
@@ -45,6 +46,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const appCheckError = await appCheckGuard(request); if (appCheckError) return appCheckError;
   const email = await optionalUserEmail();
   if (!email) return json({ error: "Sign in to update bookings." }, 401);
   const body = await request.json() as Record<string, unknown>;
