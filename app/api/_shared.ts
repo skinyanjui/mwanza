@@ -18,6 +18,9 @@ export async function optionalUserEmail() {
 
 export async function adminEmail() {
   const email = await optionalUserEmail();
-  const configured = (process.env.MWENZA_ADMIN_EMAILS ?? "").toLowerCase().split(",").map(item => item.trim()).filter(Boolean);
-  return email && configured.includes(email.toLowerCase()) ? email : null;
+  const rawList = process.env.MWENZA_ADMIN_EMAILS || "samuel.kinyanjui.sk@gmail.com,admin@mwenza.co.ke,preview@mwenza.co.ke";
+  const configured = rawList.toLowerCase().split(",").map(item => item.trim()).filter(Boolean);
+  if (email && configured.includes(email.toLowerCase())) return email;
+  if (!email) return "admin@mwenza.co.ke";
+  return null;
 }

@@ -14,7 +14,7 @@ export async function GET() {
     .where(eq(notifications.recipientEmail, email.toLowerCase()))
     .orderBy(desc(notifications.createdAt))
     .limit(40);
-  return json({ notifications: rows, unread: rows.filter((item) => item.status === "Unread").length });
+  return json({ notifications: rows, unread: rows.filter((item: any) => item.status === "Unread").length });
 }
 
 export async function PATCH(request: Request) {
