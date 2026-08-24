@@ -1,0 +1,16 @@
+// Wrangler config used only to apply Drizzle-generated D1 migrations to the
+// local Miniflare D1 store that the Vite dev server uses. It is intentionally
+// NOT named wrangler.jsonc so the @cloudflare/vite-plugin does not auto-load it;
+// the app's runtime bindings are configured inline in vite.config.ts.
+{
+  "name": "mwenza-d1-migrations",
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "site-creator-d1",
+      "database_id": "00000000-0000-4000-8000-000000000000"
+    }
+  ]
+}
