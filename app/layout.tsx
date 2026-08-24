@@ -1,25 +1,26 @@
 import type { Metadata, Viewport } from "next";
 import { FirebaseAuthProvider } from "./components/firebase-auth-provider";
+import { BRAND_DESCRIPTION, BRAND_OG_DESCRIPTION, BRAND_TAGLINE, BRAND_TITLE } from "./lib/brand";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://safi-laundry-kenya.bigafrica.chatgpt.site"),
-  title: "Mwenza Kenya | Life’s tasks, handled.",
-  description: "Book and manage trusted services for homes, businesses, government agencies and institutions across Nairobi.",
+  title: BRAND_TITLE,
+  description: BRAND_DESCRIPTION,
   icons: {
     icon: "/mwenza-mark.png",
     shortcut: "/mwenza-mark.png",
   },
   openGraph: {
-    title: "Mwenza Kenya | Your life, handled.",
-    description: "Trusted services for homes, businesses, government agencies and institutions across Nairobi.",
+    title: BRAND_TITLE,
+    description: BRAND_OG_DESCRIPTION,
     type: "website",
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Mwenza Kenya — Your life, handled." }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: `Mwenza Kenya — ${BRAND_TAGLINE}` }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mwenza Kenya | Your life, handled.",
-    description: "Trusted services for homes, businesses, government agencies and institutions across Nairobi.",
+    title: BRAND_TITLE,
+    description: BRAND_OG_DESCRIPTION,
     images: ["/og.jpg"],
   },
 };
@@ -38,7 +39,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased"><FirebaseAuthProvider>{children}</FirebaseAuthProvider></body>
+      <body className="antialiased">
+        <a className="skip-link" href="#content">Skip to content</a>
+        <FirebaseAuthProvider>
+          <div id="content" tabIndex={-1}>{children}</div>
+        </FirebaseAuthProvider>
+      </body>
     </html>
   );
 }
