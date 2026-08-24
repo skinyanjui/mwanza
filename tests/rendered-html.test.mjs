@@ -66,6 +66,10 @@ test("homepage chrome uses the shared brand system", async () => {
   assert.match(html, /role="radiogroup"/);
   assert.match(html, /Book Laundry/);
   assert.match(html, /href="\/book\?service=laundry"/);
+  const heroHtml = html.slice(html.indexOf('class="hero-booking"'), html.indexOf('class="marketplace-assurance"'));
+  assert.match(heroHtml, /<svg\b/);
+  assert.doesNotMatch(heroHtml, /<img\b/);
+  assert.doesNotMatch(heroHtml, /service-laundry\.webp/);
   assert.match(html, /Pick the help you need at home/);
   assert.doesNotMatch(html, /<select[^>]*aria-label="Choose service"/);
   assert.doesNotMatch(html, /class="marketplace-toggle"/);
