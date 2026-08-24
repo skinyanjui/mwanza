@@ -35,8 +35,25 @@ export default function HeroBooking({
   return <div className="hero-booking" role="search" aria-label="Start a service booking">
     <AudienceSelector value={audience} options={audienceOptions} onChange={onAudienceChange} className="hero-booking-audience" ariaLabel="Choose who the service is for"/>
 
+    <div className="hero-booking-bar">
+      <div className="hero-booking-pick">
+        <small>What</small>
+        <b>{presentation.title}</b>
+        <span>{presentation.price}</span>
+      </div>
+      <div className="hero-booking-where">
+        <small>Where</small>
+        <b>Nairobi</b>
+        <span>Current service area</span>
+      </div>
+      <a className="hero-booking-action" href={bookingHref}>
+        <strong>{actionLabel}</strong>
+        <small>{audienceLabel} · {presentation.price}</small>
+      </a>
+    </div>
+
     <div className="hero-booking-what">
-      <small>What do you need?</small>
+      <small>Browse {audienceLabel.toLowerCase()} services</small>
       <div className="hero-booking-services" role="radiogroup" aria-label="Choose a service">
         {marketplaceServices.map(service => {
           const item = getServicePresentation(service, audience);
@@ -47,20 +64,6 @@ export default function HeroBooking({
           </button>;
         })}
       </div>
-    </div>
-
-    <div className="hero-booking-bar">
-      <div className="hero-booking-where">
-        <small>Where</small>
-        <b>Nairobi</b>
-        <span>Current service area</span>
-      </div>
-      <div className="hero-booking-pick">
-        <small>{audienceLabel} service</small>
-        <b>{presentation.title}</b>
-        <span>{presentation.price}</span>
-      </div>
-      <a className="hero-booking-action" href={bookingHref}>{actionLabel} →</a>
     </div>
   </div>;
 }
