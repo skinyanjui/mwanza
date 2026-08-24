@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element, @next/next/no-html-link-for-pages */
+/* eslint-disable @next/next/no-html-link-for-pages */
 import BrandMark from "./brand-mark";
 import { BRAND_TAGLINE } from "../lib/brand";
 
