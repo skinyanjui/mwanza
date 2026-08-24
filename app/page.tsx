@@ -3,9 +3,10 @@
 
 import { useMemo, useState } from "react";
 import AudienceSelector from "./components/audience-selector";
+import MarketplaceServiceCard from "./components/marketplace-service-card";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
-import { audienceOptions, marketplaceServices as services, type Audience, type MarketplaceService } from "./data/marketplace-services";
+import { audienceOptions, marketplaceServices as services, type Audience } from "./data/marketplace-services";
 
 export default function Home() {
   const [audience, setAudience] = useState<Audience>("Residential");
@@ -44,7 +45,16 @@ export default function Home() {
     <section className="services marketplace-services" id="services">
       <AudienceSelector value={audience} options={audienceOptions} onChange={setAudience} className="audience-toggle marketplace-toggle"/>
       <div className="marketplace-service-grid">
-        {services.map(service => <ServiceCard key={service.slug} service={service} audience={audience}/>) }
+        {services.map(service => {
+          const isBusiness = audience === "Business";
+          const isGovernment = audience === "Government & Institutions";
+          const segment = isGovernment ? "government" : isBusiness ? "business" : "home";
+          const title = isGovernment ? service.governmentTitle : isBusiness ? service.businessTitle : service.residentialTitle;
+          const copy = isGovernment ? service.governmentCopy : isBusiness ? service.businessCopy : service.residentialCopy;
+          const price = isGovernment ? service.governmentPrice : isBusiness ? service.businessPrice : service.residentialPrice;
+          const image = isGovernment ? service.governmentImage : isBusiness ? service.businessImage : service.image;
+          return <MarketplaceServiceCard key={service.slug} title={title} description={copy} price={price} image={image} detailHref={`/services/${service.slug}/${segment}`} actionHref={`/book?service=${service.slug}${isGovernment ? "&audience=government" : isBusiness ? "&audience=business" : ""}`} actionLabel={isBusiness || isGovernment ? "Request" : "Book"}/>;
+        })}
       </div>
     </section>
 
@@ -63,30 +73,11 @@ export default function Home() {
         <div><small>MWENZA FOR BUSINESS</small><h2>Keep every location running.</h2><p>One account for recurring cleaning, linen, maintenance, meals, grounds and fleet care.</p><span>Build a business plan →</span></div>
       </a>
       <a className="marketplace-segment-card government-segment" href="/government">
-        <img src="/business-support.webp" alt="Mwenza team supporting a large institution"/>
+        <img src="/government-hero.webp" alt="Mwenza team supporting a Kenyan public institution"/>
         <div><small>GOVERNMENT & INSTITUTIONS</small><h2>Service built around public duty.</h2><p>Vetted teams, defined service levels and consolidated reporting across facilities.</p><span>Explore institutional services →</span></div>
       </a>
     </section>
 
     <SiteFooter/>
   </main>;
-}
-
-function ServiceCard({ service, audience }: { service: MarketplaceService; audience: Audience }) {
-  const isBusiness = audience === "Business";
-  const isGovernment = audience === "Government & Institutions";
-  const title = isGovernment ? service.governmentTitle : isBusiness ? service.businessTitle : service.residentialTitle;
-  const copy = isGovernment ? service.governmentCopy : isBusiness ? service.businessCopy : service.residentialCopy;
-  const price = isGovernment ? service.governmentPrice : isBusiness ? service.businessPrice : service.residentialPrice;
-  const image = isBusiness || isGovernment ? service.businessImage : service.image;
-  const bookingHref = `/book?service=${service.slug}${isGovernment ? "&audience=government" : isBusiness ? "&audience=business" : ""}`;
-
-  return <article className="marketplace-service-card">
-    <a className="marketplace-service-image" href={`/services/${service.slug}`} aria-label={`View ${title}`}><img src={image} alt={`${title} from Mwenza`}/></a>
-    <div className="marketplace-service-body">
-      <h3><a href={`/services/${service.slug}`}>{title}</a></h3>
-      <p>{copy}</p>
-      <div className="marketplace-service-bottom"><b>{price}</b><a href={bookingHref}>{isBusiness || isGovernment ? "Request" : "Book"}</a></div>
-    </div>
-  </article>;
 }

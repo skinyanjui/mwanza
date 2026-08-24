@@ -4,14 +4,14 @@
 import { useEffect, useRef, useState } from "react";
 
 const services = [
-  ["Laundry", "Washing, ironing and linen", "/services/laundry", "/service-laundry.webp"],
-  ["Cleaning", "Homes, offices and turnovers", "/services/cleaning", "/service-cleaning.webp"],
-  ["Cooking", "Meals and weekly preparation", "/services/cooking", "/service-cooking.webp"],
-  ["Fundi", "Repairs and maintenance", "/services/fundi", "/service-fundi.webp"],
-  ["Auto care", "Mobile wash and detailing", "/services/auto-care", "/service-auto.webp"],
-  ["Home support", "Errands and organization", "/services/home-support", "/service-support.webp"],
-  ["Pest control", "Treatment and prevention", "/services/pest-control", "/service-pest.webp"],
-  ["Outdoor care", "Gardens and grounds", "/services/outdoor-care", "/service-outdoor.webp"],
+  ["Laundry", "Washing, ironing and linen", "/services/laundry/home", "/service-laundry.webp"],
+  ["Cleaning", "Homes, offices and turnovers", "/services/cleaning/home", "/service-cleaning.webp"],
+  ["Cooking", "Meals and weekly preparation", "/services/cooking/home", "/service-cooking.webp"],
+  ["Fundi", "Repairs and maintenance", "/services/fundi/home", "/service-fundi.webp"],
+  ["Auto care", "Mobile wash and detailing", "/services/auto-care/home", "/service-auto.webp"],
+  ["Home support", "Errands and organization", "/services/home-support/home", "/service-support.webp"],
+  ["Pest control", "Treatment and prevention", "/services/pest-control/home", "/service-pest.webp"],
+  ["Outdoor care", "Gardens and grounds", "/services/outdoor-care/home", "/service-outdoor.webp"],
 ] as const;
 
 type Menu = "services" | "opportunities" | "location" | "mobile" | null;

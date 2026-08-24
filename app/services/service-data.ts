@@ -6,10 +6,12 @@ export type Service = {
   description: string;
   image: string;
   businessImage: string;
+  governmentImage: string;
   starting: string;
   accent: string;
   residential: string[];
   business: string[];
+  government: string[];
   included: string[];
   options: {
     name: string;
@@ -30,10 +32,12 @@ export const serviceData: Service[] = [
     description: "Doorstep laundry for clothing, bedding, delicates, uniforms and recurring linen.",
     image: "/service-laundry.webp",
     businessImage: "/business-linen.webp",
+    governmentImage: "/government-linen.webp",
     starting: "KSh 180 / kg",
     accent: "#d9efe0",
     residential: ["Wash, dry and fold", "Wash and iron", "Dry cleaning", "Duvets and bedding"],
     business: ["Hotel and Airbnb linen", "Salon and spa towels", "Uniforms and workwear", "Scheduled bulk pickup"],
+    government: ["Hospital and clinic linen", "School bedding and uniforms", "Controlled collection schedules", "Location-level service records"],
     included: ["Colour and fabric sorting", "Preference-based washing", "Neat folding or hanging", "Pickup and return tracking"],
     options: [
       { name: "Wash and fold", description: "Everyday clothing, washed, dried and neatly folded.", price: "KSh 180 / kg", duration: "1–2 day return" },
@@ -52,10 +56,12 @@ export const serviceData: Service[] = [
     description: "Cleaning for homes, offices, shops, shared spaces, guest turnovers and move-outs.",
     image: "/service-cleaning.webp",
     businessImage: "/business-cleaning.webp",
+    governmentImage: "/government-cleaning.webp",
     starting: "KSh 1,800",
     accent: "#f2e7cf",
     residential: ["Standard home cleaning", "Deep cleaning", "Move-in and move-out", "Sofa and carpet care"],
     business: ["Office and retail cleaning", "Airbnb turnovers", "Common-area cleaning", "Post-project resets"],
+    government: ["Public-office cleaning", "School and campus routines", "Clinic and facility schedules", "Documented completion checks"],
     included: ["Confirmed task checklist", "Arrival and completion updates", "Room-by-room instructions", "Issue reporting before departure"],
     options: [
       { name: "Standard clean", description: "A reliable reset for routinely maintained homes and spaces.", price: "From KSh 1,800", duration: "2–4 hours" },
@@ -74,10 +80,12 @@ export const serviceData: Service[] = [
     description: "Cooking support for family meals, weekly prep, workplace meals, meetings and small events.",
     image: "/service-cooking.webp",
     businessImage: "/business-cooking.webp",
+    governmentImage: "/government-meals.webp",
     starting: "KSh 2,000",
     accent: "#dfecee",
     residential: ["Single-meal preparation", "Weekly family meal prep", "Private cook visits", "Kitchen prep and tidy-up"],
     business: ["Staff meal preparation", "Meeting meals", "Managed weekly menus", "Event kitchen support"],
+    government: ["School meal support", "Institutional kitchen teams", "Program-site meal preparation", "Menu and portion controls"],
     included: ["Menu and portion confirmation", "Dietary preference notes", "Ingredient plan before arrival", "Clean cooking area at completion"],
     options: [
       { name: "Family meal preparation", description: "A fresh meal cooked in your kitchen for family or guests.", price: "From KSh 2,500", duration: "2–4 hours" },
@@ -96,10 +104,12 @@ export const serviceData: Service[] = [
     description: "Skilled plumbing, electrical, carpentry, mounting, assembly and routine repairs.",
     image: "/service-fundi.webp",
     businessImage: "/business-fundi.webp",
+    governmentImage: "/government-facilities.webp",
     starting: "KSh 1,000",
     accent: "#f3dfca",
     residential: ["Plumbing fixes", "Electrical work", "Carpentry repairs", "Mounting and assembly"],
     business: ["Preventive maintenance visits", "Routine facility repairs", "Multi-location task lists", "Turnover maintenance"],
+    government: ["Planned facility inspections", "Approved plumbing support", "Electrical and carpentry tasks", "Completion notes and photos"],
     included: ["Skill-matched professional", "Scope confirmation", "Materials approval before purchase", "Completion notes and photos"],
     options: [
       { name: "Plumbing", description: "Help with leaks, taps, fittings and routine plumbing faults.", price: "From KSh 1,200", duration: "1–3 hours" },
@@ -118,10 +128,12 @@ export const serviceData: Service[] = [
     description: "Mobile washing, interior care and detailing for homes, offices, dealerships and fleets.",
     image: "/service-auto.webp",
     businessImage: "/business-fleet.webp",
+    governmentImage: "/government-fleet.webp",
     starting: "KSh 1,000",
     accent: "#dce5e0",
     residential: ["Exterior hand wash", "Interior vacuum and wipe-down", "Full vehicle detailing", "Multi-car appointments"],
     business: ["Scheduled fleet washing", "Company vehicle detailing", "Dealership preparation", "On-site group service"],
+    government: ["Agency fleet washing", "County vehicle detailing", "On-site group scheduling", "Vehicle-level completion records"],
     included: ["Vehicle-size confirmation", "Wash and detail checklist", "Water and access requirements", "Completion inspection"],
     options: [
       { name: "Exterior hand wash", description: "Body, windows, wheels and a careful hand dry at your location.", price: "From KSh 1,000", duration: "45–75 minutes" },
@@ -140,10 +152,12 @@ export const serviceData: Service[] = [
     description: "Errands, organization, turnovers, restocking and event setup for homes and businesses.",
     image: "/service-support.webp",
     businessImage: "/business-support.webp",
+    governmentImage: "/government-support.webp",
     starting: "KSh 800",
     accent: "#e9e1ef",
     residential: ["Errand running", "Home organization", "Shopping and pickup", "Event setup and tidy-up"],
     business: ["Office restocking", "Property turnovers", "Operational errands", "Event support"],
+    government: ["Facility restocking", "Public-program setup", "Operational errands", "Meeting and event support"],
     included: ["Clear task and spending limits", "Receipt capture for purchases", "Progress updates", "Completion confirmation"],
     options: [
       { name: "Errand runner", description: "Shopping, collection and delivery within an agreed route and budget.", price: "From KSh 800", duration: "1–3 hours" },
@@ -162,10 +176,12 @@ export const serviceData: Service[] = [
     description: "Inspection, targeted treatment and prevention for homes, offices, hospitality and shared spaces.",
     image: "/service-pest.webp",
     businessImage: "/business-pest.webp",
+    governmentImage: "/government-pest.webp",
     starting: "KSh 1,500",
     accent: "#e4efdf",
     residential: ["Home pest inspection", "Targeted treatment", "Kitchen and pantry prevention", "Recurring protection"],
     business: ["Office and retail prevention", "Hospitality pest plans", "Multi-site monitoring", "Scheduled follow-up"],
+    government: ["Public-building inspection", "Campus prevention plans", "Multi-site monitoring", "Documented follow-up"],
     included: ["Qualified service matching", "Treatment and safety plan", "Preparation instructions", "Follow-up guidance"],
     options: [
       { name: "Home inspection", description: "Assess pest signs, affected areas and the right next step.", price: "From KSh 1,000", duration: "45–90 minutes" },
@@ -184,10 +200,12 @@ export const serviceData: Service[] = [
     description: "Garden tidying, lawn care, pruning and outdoor cleanup for homes, properties and workplaces.",
     image: "/service-outdoor.webp",
     businessImage: "/business-grounds.webp",
+    governmentImage: "/government-grounds.webp",
     starting: "KSh 1,200",
     accent: "#dcead7",
     residential: ["Garden tidy-up", "Lawn mowing and edging", "Pruning and shaping", "Seasonal outdoor cleanup"],
     business: ["Grounds maintenance", "Common-area landscaping", "Hospitality grounds care", "Scheduled outdoor cleanup"],
+    government: ["Public-compound upkeep", "School and campus grounds", "Scheduled pruning and cleanup", "Multi-site grounds plans"],
     included: ["Confirmed outdoor task plan", "Tools and access confirmation", "Green-waste tidy-up", "Completion update"],
     options: [
       { name: "Garden tidy-up", description: "Weeding, light trimming and a practical reset for smaller gardens.", price: "From KSh 1,200", duration: "1–3 hours" },
