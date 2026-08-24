@@ -1,0 +1,23 @@
+export const jobDetails = [
+  ["laundry-care-professional","Laundry care professional","Field services","Nairobi","Full time","Prepare, clean, press and package customer garments to Mwenza standards."],
+  ["home-cleaning-professional","Home cleaning professional","Field services","Nairobi","Flexible","Deliver reliable standard, deep and move-out cleaning in customer homes."],
+  ["commercial-cleaning-team-lead","Commercial cleaning team lead","Field services","Nairobi","Full time","Lead recurring office and property teams, quality checks and supplies."],
+  ["private-cook","Private cook","Food services","Nairobi","Flexible","Prepare thoughtful home meals and leave every kitchen clean and organized."],
+  ["meal-prep-chef","Meal-prep chef","Food services","Nairobi","Full time","Plan and prepare weekly meals for households and workplace clients."],
+  ["plumber-fundi-partner","Plumber / fundi partner","Skilled trades","Nairobi","Contract","Handle verified plumbing jobs with clear estimates and professional updates."],
+  ["electrician-fundi-partner","Electrician / fundi partner","Skilled trades","Nairobi","Contract","Complete safe household and commercial electrical service requests."],
+  ["carpenter-handyman","Carpenter / handyman","Skilled trades","Nairobi","Contract","Deliver furniture, mounting, door, shelving and general repair work."],
+  ["mobile-car-wash-specialist","Mobile car wash specialist","Auto care","Nairobi","Full time","Provide on-site exterior washes and interior cleaning for homes and fleets."],
+  ["vehicle-detailing-lead","Vehicle detailing lead","Auto care","Nairobi","Full time","Lead premium mobile detailing and coach new auto-care specialists."],
+  ["pest-control-technician","Pest control technician","Field services","Nairobi","Full time","Inspect, treat and help prevent common pest activity across homes and business locations."],
+  ["grounds-care-professional","Grounds care professional","Field services","Nairobi","Flexible","Maintain gardens, lawns and shared outdoor spaces to Mwenza standards."],
+  ["customer-care-associate","Customer care associate","Customer operations","Nairobi / Hybrid","Full time","Help customers book, reschedule and resolve service questions quickly."],
+  ["service-quality-coordinator","Service quality coordinator","Operations","Nairobi","Full time","Review jobs, coach professionals and protect the Mwenza service standard."],
+  ["provider-onboarding-specialist","Provider onboarding specialist","Operations","Nairobi / Hybrid","Full time","Verify, train and activate new service professionals across categories."],
+  ["area-operations-manager","Area operations manager","Operations","Nairobi","Full time","Own service delivery, supply readiness and performance for a local zone."],
+  ["business-account-executive","Business account executive","Growth","Nairobi / Hybrid","Full time","Build multi-service operations plans for business customers and properties."],
+  ["territory-launch-associate","Territory launch associate","Growth","Kenya","Full time","Help Mwenza launch new neighborhoods and future cities across Kenya."],
+  ["product-designer","Product designer","Technology","Nairobi / Remote","Full time","Design simple booking and provider experiences for everyday services."],
+  ["full-stack-engineer","Full-stack engineer","Technology","Kenya / Remote","Full time","Build reliable customer, professional and operations tools for Mwenza."],
+] as const;
+export function getJob(slug:string){return jobDetails.find(job=>job[0]===slug)}
