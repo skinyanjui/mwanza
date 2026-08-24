@@ -128,6 +128,6 @@ export default function ServiceDetailTemplate({ service, segment }: { service: S
     <section className="detail-next detail-next-marketplace"><small>READY WHEN YOU ARE</small><h2>Let’s get {current.short.toLowerCase()} handled.</h2><p>{presentation.description}</p><div><a href={presentation.bookingHref}>{presentation.actionLabel}</a><a href={presentation.returnHref}>{presentation.returnLabel}</a></div></section>
 
     <SiteFooter/>
-    <div className="detail-mobile-bar"><span><small>{segment === "home" ? "From" : "Pricing"}</small><b>{presentation.price}</b></span><a href={presentation.bookingHref}>{segment === "home" ? "Check availability" : "Request service"}</a></div>
+    <div className="detail-mobile-bar"><span><small>{segment === "home" ? "From" : "Pricing"}</small><b>{presentation.price}</b></span><a href={presentation.bookingHref}>{presentation.actionLabel}</a></div>
   </main>;
 }

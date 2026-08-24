@@ -74,7 +74,7 @@ export default function FranchisePage() {
       <div><small>OWN A MWENZA TERRITORY</small><h1>Build the trusted service company your city needs.</h1><p>Operate a local Mwenza business with a proven brand, booking platform, service playbooks and ongoing support.</p><div><a href="#territories">Explore territories</a><a href="#model">See how it works</a></div></div>
       <aside><small>FRANCHISE PROFILE</small><h2>Built for hands-on local operators.</h2><ul><li>Local market leadership</li><li>Multi-service revenue</li><li>Residential and business customers</li><li>Technology and operating support</li></ul><button onClick={() => openTerritory("Best available territory")}>Start a conversation →</button></aside>
     </section>
-    <section className="franchise-proof"><span><b>8</b> service categories</span><span><b>2</b> customer segments</span><span><b>1</b> trusted local operator</span><span><b>Kenya</b> expansion focus</span></section>
+    <section className="franchise-proof"><span><b>8</b> service categories</span><span><b>3</b> customer segments</span><span><b>1</b> trusted local operator</span><span><b>Kenya</b> expansion focus</span></section>
     <section className="franchise-model" id="model">
       <div className="franchise-title"><small>THE MWENZA MODEL</small><h2>A local business with a shared operating system.</h2><p>You lead the market. Mwenza provides the brand, customer experience, systems and standards.</p></div>
       <div className="franchise-model-grid">

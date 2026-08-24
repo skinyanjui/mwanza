@@ -21,7 +21,7 @@ export default function Home() {
     <section className="marketplace-home-hero" id="top">
       <div className="marketplace-hero-content">
         <div className="marketplace-hero-copy">
-          <div className="marketplace-eyebrow"><span/> Trusted help across Nairobi</div>
+          <div className="marketplace-eyebrow"><span/> Nairobi · Home, business and government</div>
           <h1>Essential services, handled.</h1>
           <p>Trusted support for homes, workplaces and public institutions—booked and managed in one place.</p>
         </div>
