@@ -20,7 +20,7 @@ import {
   type DocumentData,
   type Unsubscribe,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytesResumable, type UploadTaskSnapshot } from "firebase/storage";
+import { getDownloadURL, getMetadata, listAll, ref, uploadBytesResumable, type UploadTaskSnapshot } from "firebase/storage";
 import { getFirebaseServices } from "./firebase-client";
 import type { AccountType, FirebaseAccount, FirebaseOrganization, MwenzaRole, OrganizationType, UploadKind } from "./firebase-types";
 
@@ -264,6 +264,11 @@ function normalizedDocument(id: string, data: DocumentData) {
     const value = normalized[key] as { toDate?: () => Date } | undefined;
     if (value?.toDate) normalized[key] = value.toDate().toISOString();
   }
+  normalized.contactName ??= normalized.name;
+  normalized.scheduledDay ??= normalized.day;
+  normalized.scheduledDate ??= normalized.date;
+  normalized.scheduledTime ??= normalized.time;
+  normalized.assignedProviderId ??= normalized.assignedProviderUid;
   return normalized;
 }
 
@@ -388,8 +393,48 @@ export async function listOrganizationBookings(organizationId: string) {
   return snapshot.docs.map((item) => normalizedDocument(item.id, item.data()));
 }
 
+export function watchOrganizationBookings(organizationId: string, callback: (items: Record<string, unknown>[]) => void, onError?: (reason: Error) => void): Unsubscribe {
+  const organizationBookings = query(collection(services().db, "bookings"), where("organizationId", "==", organizationId), orderBy("createdAt", "desc"), limit(50));
+  return onSnapshot(organizationBookings, (snapshot) => callback(snapshot.docs.map((item) => normalizedDocument(item.id, item.data()))), (reason) => onError?.(reason));
+}
+
 function safeFilename(name: string) {
   return name.normalize("NFKD").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").slice(0, 120);
+}
+
+function uploadBasePath(input: { kind: UploadKind; uid: string; entityId?: string }) {
+  return input.kind === "profile" ? `profiles/${input.uid}`
+    : input.kind === "provider" ? `providers/${input.uid}`
+      : input.kind === "job-photo" ? `bookings/${input.entityId}/jobs`
+        : `organizations/${input.entityId}/${input.kind === "invoice" ? "invoices" : "procurement"}`;
+}
+
+export type MwenzaStoredFile = {
+  path: string;
+  name: string;
+  contentType: string;
+  size: number;
+  createdAt: string;
+};
+
+export async function listMwenzaFiles(input: { kind: UploadKind; uid: string; entityId?: string }) {
+  const { storage } = services();
+  const result = await listAll(ref(storage, uploadBasePath(input)));
+  const files = await Promise.all(result.items.map(async (item) => {
+    const metadata = await getMetadata(item);
+    return {
+      path: item.fullPath,
+      name: item.name.replace(/^\d+-/, ""),
+      contentType: metadata.contentType ?? "File",
+      size: metadata.size,
+      createdAt: metadata.timeCreated,
+    } satisfies MwenzaStoredFile;
+  }));
+  return files.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function getMwenzaFileUrl(path: string) {
+  return getDownloadURL(ref(services().storage, path));
 }
 
 export function uploadMwenzaFile(input: {
@@ -401,10 +446,7 @@ export function uploadMwenzaFile(input: {
 }) {
   const { storage } = services();
   const fileId = `${Date.now()}-${safeFilename(input.file.name)}`;
-  const base = input.kind === "profile" ? `profiles/${input.uid}`
-    : input.kind === "provider" ? `providers/${input.uid}`
-      : input.kind === "job-photo" ? `bookings/${input.entityId}/jobs`
-        : `organizations/${input.entityId}/${input.kind === "invoice" ? "invoices" : "procurement"}`;
+  const base = uploadBasePath(input);
   const target = ref(storage, `${base}/${fileId}`);
   const task = uploadBytesResumable(target, input.file, {
     contentType: input.file.type,

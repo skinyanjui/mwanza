@@ -55,13 +55,31 @@ export default function OperationsPage() {
         return () => window.clearTimeout(deniedTimer);
       }
       const grantedTimer = window.setTimeout(() => { setAccess("granted"); setConnected(true); }, 0);
+      const controller = new AbortController();
       const stop = watchOperationsData((section, items) => {
-        if (section === "bookings") setBookings(items as unknown as Booking[]);
+        if (section === "bookings") setBookings(items.map((item) => ({
+          ...item,
+          contactName: String(item.contactName ?? item.name ?? "Customer"),
+          service: String(item.service ?? "Mwenza service"),
+          option: String(item.option ?? item.service ?? "Service request"),
+          address: String(item.address ?? "Location pending"),
+          scheduledDay: String(item.scheduledDay ?? item.day ?? "Schedule pending"),
+          scheduledTime: String(item.scheduledTime ?? item.time ?? "Window pending"),
+          status: String(item.status ?? "Confirmation pending"),
+          createdAt: String(item.createdAt ?? new Date().toISOString()),
+          assignedProviderId: item.assignedProviderId ? String(item.assignedProviderId) : item.assignedProviderUid ? String(item.assignedProviderUid) : undefined,
+          assignedProviderName: item.assignedProviderName ? String(item.assignedProviderName) : undefined,
+        })) as unknown as Booking[]);
         if (section === "organizations") setLeads(items.map((item) => ({ ...item, businessName: String(item.name ?? "Organization"), services: JSON.stringify(item.services ?? []), locationCount: Number(item.locationCount ?? 1), contact: String(item.contact ?? ""), status: String(item.status ?? "New lead") })) as unknown as Lead[]);
-        if (section === "applications") setApplications(items.map((item) => ({ ...item, applicationType: "provider", services: JSON.stringify(item.services ?? []) })) as unknown as Application[]);
+        if (section === "applications") setApplications(items.map((item) => ({ ...item, applicationType: "provider", roleOrTerritory: String(item.availability ?? "Service provider"), services: JSON.stringify(item.services ?? []) })) as unknown as Application[]);
         if (section === "providers") setProviders(items.map((item) => ({ ...item, services: JSON.stringify(item.services ?? []), acceptingWork: item.acceptingWork ? 1 : 0 })) as unknown as Provider[]);
       }, () => setAccess("error"));
-      return () => { window.clearTimeout(grantedTimer); stop(); };
+      firebaseFetch("/api/incidents", { signal: controller.signal }).then(async (response) => {
+        if (!response.ok) return;
+        const data = await response.json();
+        setIncidents(data.incidents || []);
+      }).catch(() => {});
+      return () => { window.clearTimeout(grantedTimer); controller.abort(); stop(); };
     }
     const controller = new AbortController();
     const timer = window.setTimeout(() => loadOperations(controller.signal).catch((reason) => { if (reason instanceof DOMException && reason.name === "AbortError") return; setAccess(reason instanceof Error && reason.message === "access-denied" ? "denied" : "error"); }), 0);

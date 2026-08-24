@@ -7,10 +7,11 @@ Mwenza is a responsive services marketplace for Kenyan homes, businesses, govern
 - Residential, business, government, and institutional service marketplace
 - Four-step booking flow tailored to each customer segment
 - Eight service detail pages
-- Business service-plan request and client workspace
-- Government and institutional procurement enquiry flow
+- Business service-plan request and multi-organization client workspace
+- Government procurement enquiry and institutional workspace
 - Legal center with customer, provider, privacy, safety, accessibility, and public-sector terms
 - Firebase email/password and Google account access with customer, provider, business, government, and operations roles
+- Role-scoped invoice, procurement, profile, provider, and job-photo vaults
 - Provider application and work workspace
 - Jobs board with search, filters, and role detail pages
 - Franchise opportunities and territory enquiries
