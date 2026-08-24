@@ -18,3 +18,56 @@ export const marketplaceServices = [
 ] as const;
 
 export type MarketplaceService = (typeof marketplaceServices)[number];
+export type AudienceKey = "home" | "business" | "government";
+export type ServiceSlug = MarketplaceService["slug"];
+
+export function getAudienceKey(audience: Audience): AudienceKey {
+  switch (audience) {
+    case "Residential":
+      return "home";
+    case "Business":
+      return "business";
+    case "Government & Institutions":
+      return "government";
+    default: {
+      const exhaustive: never = audience;
+      throw new Error(`Unhandled audience: ${exhaustive}`);
+    }
+  }
+}
+
+export function getServicePresentation(service: MarketplaceService, audience: Audience) {
+  const key = getAudienceKey(audience);
+  switch (key) {
+    case "business":
+      return { title: service.businessTitle, copy: service.businessCopy, price: service.businessPrice, image: service.businessImage, key };
+    case "government":
+      return { title: service.governmentTitle, copy: service.governmentCopy, price: service.governmentPrice, image: service.governmentImage, key };
+    case "home":
+      return { title: service.residentialTitle, copy: service.residentialCopy, price: service.residentialPrice, image: service.image, key };
+    default: {
+      const exhaustive: never = key;
+      throw new Error(`Unhandled audience key: ${exhaustive}`);
+    }
+  }
+}
+
+export function getBookingHref(slug: ServiceSlug, audience: Audience) {
+  const key = getAudienceKey(audience);
+  return key === "home" ? `/book?service=${slug}` : `/book?service=${slug}&audience=${key}`;
+}
+
+export function getBookingActionLabel(short: string, audience: Audience) {
+  const key = getAudienceKey(audience);
+  switch (key) {
+    case "home":
+      return `Book ${short}`;
+    case "business":
+    case "government":
+      return `Request ${short}`;
+    default: {
+      const exhaustive: never = key;
+      throw new Error(`Unhandled audience key: ${exhaustive}`);
+    }
+  }
+}

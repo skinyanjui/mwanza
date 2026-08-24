@@ -1,21 +1,35 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 
-import { useMemo, useState } from "react";
-import AudienceSelector from "./components/audience-selector";
+import { useState } from "react";
+import HeroBooking from "./components/hero-booking";
 import MarketplaceServiceCard from "./components/marketplace-service-card";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
-import { audienceOptions, marketplaceServices as services, type Audience } from "./data/marketplace-services";
+import {
+  getAudienceKey,
+  getBookingHref,
+  getServicePresentation,
+  marketplaceServices as services,
+  type Audience,
+  type ServiceSlug,
+} from "./data/marketplace-services";
+import { AUDIENCE_LABELS } from "./lib/brand";
+
+const catalogHeadlines = {
+  home: { title: "Pick the help you need at home.", description: "Every listing below matches the audience chosen in the booking card." },
+  business: { title: "Keep every location running.", description: "Request a managed plan, or start with a single business service." },
+  government: { title: "Service built around public duty.", description: "Review institutional capabilities, then start a procurement-ready request." },
+} as const;
 
 export default function Home() {
   const [audience, setAudience] = useState<Audience>("Residential");
-  const [selectedSlug, setSelectedSlug] = useState<(typeof services)[number]["slug"]>("laundry");
-  const selected = useMemo(() => services.find(service => service.slug === selectedSlug) ?? services[0], [selectedSlug]);
-  const audienceQuery = audience === "Business" ? "business" : audience === "Government & Institutions" ? "government" : "";
-  const bookingHref = `/book?service=${selected.slug}${audienceQuery ? `&audience=${audienceQuery}` : ""}`;
+  const [selectedSlug, setSelectedSlug] = useState<ServiceSlug>("laundry");
+  const audienceKey = getAudienceKey(audience);
+  const audienceLabel = AUDIENCE_LABELS[audienceKey];
+  const catalogCopy = catalogHeadlines[audienceKey];
 
-  return <main className="marketplace-home" data-audience={audienceQuery || "home"}>
+  return <main className="marketplace-home" data-audience={audienceKey}>
     <SiteHeader/>
 
     <section className="marketplace-home-hero" id="top">
@@ -23,16 +37,9 @@ export default function Home() {
         <div className="marketplace-hero-copy">
           <div className="marketplace-eyebrow"><span/> Nairobi · Home, business and government</div>
           <h1>Essential services, handled.</h1>
-          <p>Trusted support for homes, workplaces and public institutions—booked and managed in one place.</p>
+          <p>Choose who it’s for, pick a service, then continue into a clear booking.</p>
         </div>
-
-        <div className="marketplace-search-card" aria-label="Start a service booking">
-          <AudienceSelector value={audience} options={audienceOptions} onChange={setAudience} className="marketplace-audience-tabs" ariaLabel="Choose who the service is for"/>
-          <div className="marketplace-search-row marketplace-search-simple">
-            <label><small>What do you need?</small><select aria-label="Choose service" value={selectedSlug} onChange={event => setSelectedSlug(event.target.value as typeof selectedSlug)}>{services.map(service => <option key={service.slug} value={service.slug}>{service.short}</option>)}</select></label>
-            <a className="marketplace-search-action" href={bookingHref}>Continue →</a>
-          </div>
-        </div>
+        <HeroBooking audience={audience} selectedSlug={selectedSlug} onAudienceChange={setAudience} onSelectService={setSelectedSlug}/>
       </div>
     </section>
 
@@ -43,17 +50,14 @@ export default function Home() {
     </section>
 
     <section className="services marketplace-services" id="services">
-      <AudienceSelector value={audience} options={audienceOptions} onChange={setAudience} className="audience-toggle marketplace-toggle"/>
+      <header className="marketplace-section-head">
+        <div><small>{audienceLabel.toUpperCase()} SERVICES IN NAIROBI</small><h2>{catalogCopy.title}</h2></div>
+        <p>{catalogCopy.description}</p>
+      </header>
       <div className="marketplace-service-grid">
         {services.map(service => {
-          const isBusiness = audience === "Business";
-          const isGovernment = audience === "Government & Institutions";
-          const segment = isGovernment ? "government" : isBusiness ? "business" : "home";
-          const title = isGovernment ? service.governmentTitle : isBusiness ? service.businessTitle : service.residentialTitle;
-          const copy = isGovernment ? service.governmentCopy : isBusiness ? service.businessCopy : service.residentialCopy;
-          const price = isGovernment ? service.governmentPrice : isBusiness ? service.businessPrice : service.residentialPrice;
-          const image = isGovernment ? service.governmentImage : isBusiness ? service.businessImage : service.image;
-          return <MarketplaceServiceCard key={service.slug} title={title} description={copy} price={price} image={image} detailHref={`/services/${service.slug}/${segment}`} actionHref={`/book?service=${service.slug}${isGovernment ? "&audience=government" : isBusiness ? "&audience=business" : ""}`} actionLabel={isBusiness || isGovernment ? "Request" : "Book"}/>;
+          const item = getServicePresentation(service, audience);
+          return <MarketplaceServiceCard key={service.slug} title={item.title} description={item.copy} price={item.price} image={item.image} detailHref={`/services/${service.slug}/${item.key}`} actionHref={getBookingHref(service.slug, audience)} actionLabel={item.key === "home" ? "Book" : "Request"}/>;
         })}
       </div>
     </section>
