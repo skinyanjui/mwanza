@@ -72,11 +72,10 @@ test("homepage chrome uses the shared brand system", async () => {
   assert.doesNotMatch(html, /Book Laundry/);
   assert.doesNotMatch(html, /<select[^>]*aria-label="Choose service"/);
   assert.doesNotMatch(html, /class="marketplace-toggle"/);
-  assert.doesNotMatch(html, />For business</);
   assert.doesNotMatch(html, /Life’s tasks, handled/);
   assert.doesNotMatch(html, /Your life, handled/);
   assert.doesNotMatch(html, /Keep every location running/);
-
+  assert.match(html, />For business</);
   const cssHref = html.match(/href="(\/assets\/index-[^"]+\.css)"/)?.[1];
   assert.ok(cssHref, "expected bundled stylesheet href");
   const cssPath = fileURLToPath(new URL(`../dist/client${cssHref}`, import.meta.url));
