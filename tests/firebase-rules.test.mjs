@@ -262,6 +262,50 @@ describe("Cloud Storage", () => {
   });
 });
 
+describe("API-backed marketplace collections", () => {
+  test("only active service pricing is public", async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, "servicePricing", "cleaning"), { id: "cleaning", active: true, amount: 2500, sortOrder: 1 });
+      await setDoc(doc(db, "servicePricing", "retired"), { id: "retired", active: false, amount: 1000, sortOrder: 2 });
+    });
+    const publicDb = env.unauthenticatedContext().firestore();
+    await assertSucceeds(getDoc(doc(publicDb, "servicePricing", "cleaning")));
+    await assertFails(getDoc(doc(publicDb, "servicePricing", "retired")));
+    await assertSucceeds(getDoc(doc(env.authenticatedContext("ops").firestore(), "servicePricing", "retired")));
+  });
+
+  test("organization finance records are readable only within the tenant and writes stay behind the API", async () => {
+    await seedOrganization();
+    await seed(async (db) => setDoc(doc(db, "invoices", "MINV-1"), { id: "MINV-1", organizationId: "ORG-1", status: "Issued" }));
+    await assertSucceeds(getDoc(doc(env.authenticatedContext("bob").firestore(), "invoices", "MINV-1")));
+    await assertFails(getDoc(doc(env.authenticatedContext("outsider").firestore(), "invoices", "MINV-1")));
+    await assertFails(updateDoc(doc(env.authenticatedContext("alice").firestore(), "invoices", "MINV-1"), { status: "Paid" }));
+  });
+
+  test("personal and organization addresses preserve ownership boundaries", async () => {
+    await seedOrganization();
+    const alice = env.authenticatedContext("alice").firestore();
+    const manager = env.authenticatedContext("maya").firestore();
+    const outsider = env.authenticatedContext("outsider").firestore();
+    await assertSucceeds(setDoc(doc(alice, "addresses", "HOME-1"), { id: "HOME-1", ownerUid: "alice", organizationId: null, label: "Home", address: "Westlands", updatedAt: "now" }));
+    await assertSucceeds(setDoc(doc(manager, "addresses", "ORG-ADDR"), { id: "ORG-ADDR", ownerUid: "maya", organizationId: "ORG-1", label: "HQ", address: "Nairobi", updatedAt: "now" }));
+    await assertFails(setDoc(doc(outsider, "addresses", "BAD"), { id: "BAD", ownerUid: "outsider", organizationId: "ORG-1", label: "HQ", address: "Nairobi", updatedAt: "now" }));
+    await assertFails(updateDoc(doc(manager, "addresses", "ORG-ADDR"), { organizationId: null }));
+  });
+
+  test("verification and audit records cannot be written directly", async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, "providerVerifications", "provider"), { uid: "provider", status: "Pending" });
+      await setDoc(doc(db, "auditLogs", "log-1"), { requestId: "log-1", status: 200 });
+    });
+    await assertSucceeds(getDoc(doc(env.authenticatedContext("provider").firestore(), "providerVerifications", "provider")));
+    await assertFails(getDoc(doc(env.authenticatedContext("outsider").firestore(), "providerVerifications", "provider")));
+    await assertFails(updateDoc(doc(env.authenticatedContext("provider").firestore(), "providerVerifications", "provider"), { status: "Verified" }));
+    await assertSucceeds(getDoc(doc(env.authenticatedContext("ops").firestore(), "auditLogs", "log-1")));
+    await assertFails(getDoc(doc(env.authenticatedContext("alice").firestore(), "auditLogs", "log-1")));
+  });
+});
+
 test("rules default to deny", async () => {
   await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(), "accounts", "ops")));
   await assertFails(setDoc(doc(env.authenticatedContext("alice").firestore(), "unlisted", "record"), { value: true }));

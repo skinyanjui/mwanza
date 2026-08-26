@@ -7,8 +7,12 @@ export async function firebaseFetch(input: RequestInfo | URL, init: RequestInit 
   const services = getFirebaseServices();
   if (!services) return fetch(input, init);
   const headers = new Headers(init.headers);
+  const method = (init.method ?? "GET").toUpperCase();
   const user = services.auth.currentUser;
   if (user) headers.set("authorization", `Bearer ${await user.getIdToken()}`);
+  if (!["GET", "HEAD", "OPTIONS"].includes(method) && !headers.has("idempotency-key")) {
+    headers.set("idempotency-key", crypto.randomUUID());
+  }
   if (services.appCheck) {
     try { headers.set("x-firebase-appcheck", (await getAppCheckToken(services.appCheck, false)).token); } catch { /* Firebase enforcement remains the server-side authority. */ }
   }
