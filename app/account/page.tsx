@@ -32,10 +32,10 @@ function AccountDashboard({onSignOut,profile}:{onSignOut:()=>void;profile:Accoun
   const [bookings,setBookings]=useState<Booking[]>([]);
   const [notifications,setNotifications]=useState<Notification[]>([]);
   const [section,setSection]=useState("Bookings");
+  const [accountProfile,setAccountProfile]=useState(profile);
   const homeSections=["Bookings","Updates","Account","Support"] as const;
   const organizationSections=["Bookings","Updates","Account","Support"] as const;
   const navSections=accountProfile?.accountType==="Home"||!accountProfile?.accountType?homeSections:organizationSections;
-  const [accountProfile,setAccountProfile]=useState(profile);
   const [profileName,setProfileName]=useState(profile?.fullName||"");
   const [profilePhone,setProfilePhone]=useState(profile?.phone||"");
   const [profileArea,setProfileArea]=useState(profile?.serviceArea||"Nairobi");

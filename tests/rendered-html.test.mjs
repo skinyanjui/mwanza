@@ -66,7 +66,8 @@ test("homepage chrome uses the shared brand system", async () => {
   assert.match(html, /role="search"/);
   assert.match(html, /Book a service/);
   assert.match(html, /href="\/book"/);
-  assert.match(html, /Pick the help you need at home/);
+  assert.match(html, /Services near you/);
+  assert.match(html, /class="listing-catalog-card"/);
   assert.doesNotMatch(html, /class="hero-booking"/);
   assert.doesNotMatch(html, /role="radiogroup"/);
   assert.doesNotMatch(html, /Book Laundry/);

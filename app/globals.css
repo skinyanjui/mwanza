@@ -2079,3 +2079,187 @@ code, kbd, pre, samp { font-family: var(--font-mono); }
     display: flex;
   }
 }
+
+/* Home catalog — Airbnb-like tiles */
+.marketplace-home-listing .home-catalog {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 56px clamp(16px, 4vw, 48px) 24px;
+  background: #fff;
+}
+.home-catalog-head {
+  margin-bottom: 28px;
+}
+.home-catalog-head h2 {
+  margin: 0 0 8px;
+  font-size: clamp(26px, 3vw, 32px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+.home-catalog-head p {
+  margin: 0;
+  color: #6a6a6a;
+  font-size: 16px;
+}
+.home-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 18px;
+}
+.listing-catalog-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.listing-catalog-media {
+  display: block;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f0f0f0;
+  aspect-ratio: 1.05;
+}
+.listing-catalog-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 220ms ease;
+}
+.listing-catalog-card:hover .listing-catalog-media img {
+  transform: scale(1.03);
+}
+.listing-catalog-body {
+  display: grid;
+  gap: 10px;
+}
+.listing-catalog-copy h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.listing-catalog-copy h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+.listing-catalog-copy p {
+  margin: 0;
+  color: #6a6a6a;
+  font-size: 13px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.listing-catalog-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.listing-catalog-meta b {
+  font-size: 14px;
+  font-weight: 650;
+}
+.listing-catalog-meta a {
+  min-height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #222;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 620;
+  text-decoration: none;
+}
+.listing-catalog-meta a:hover {
+  background: #000;
+}
+.home-how {
+  width: min(100%, 1120px);
+  margin: 0 auto 8px;
+  padding: 40px clamp(16px, 4vw, 48px) 72px;
+  border-top: 1px solid #ebebeb;
+}
+.home-how h2 {
+  margin: 0 0 22px;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+.home-how ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.home-how li {
+  display: grid;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid #ebebeb;
+}
+.home-how b {
+  font-size: 15px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+.home-how span {
+  color: #6a6a6a;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Home booking wizard — quieter, listing-aligned */
+.booking-page[data-audience="home"] {
+  background: #fff;
+}
+.booking-page[data-audience="home"] .book-nav {
+  border-bottom: 1px solid #ebebeb;
+  box-shadow: none;
+}
+.booking-page[data-audience="home"] .book-nav > span {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  color: #6a6a6a;
+  font-weight: 560;
+}
+.booking-page[data-audience="home"] .book-main {
+  border: 1px solid #ebebeb;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: none;
+}
+.booking-page[data-audience="home"] .book-options button {
+  border-radius: 12px;
+}
+.booking-page[data-audience="home"] .book-footer {
+  border-top: 1px solid #ebebeb;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+@media (max-width: 980px) {
+  .home-catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-how ol {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .home-catalog {
+    padding-top: 36px;
+  }
+  .home-catalog-grid {
+    gap: 22px 12px;
+  }
+  .listing-catalog-media {
+    aspect-ratio: 1.15;
+  }
+}

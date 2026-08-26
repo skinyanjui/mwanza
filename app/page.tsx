@@ -14,7 +14,7 @@ import {
 const homeAudience = "Residential" as const;
 
 export default function Home() {
-  return <main className="marketplace-home" data-audience="home">
+  return <main className="marketplace-home marketplace-home-listing" data-audience="home">
     <SiteHeader shell="home"/>
 
     <section className="marketplace-home-hero marketplace-home-hero-book-first" id="top">
@@ -28,32 +28,26 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="marketplace-assurance" aria-label="Mwenza service promises">
-      <span><b>Vetted providers</b><small>Identity and skill checks</small></span>
-      <span><b>Clear before you confirm</b><small>Scope, timing and price</small></span>
-      <span><b>Support through completion</b><small>Help when plans change</small></span>
-    </section>
-
-    <section className="services marketplace-services" id="services">
-      <header className="marketplace-section-head">
-        <div><small>HOME SERVICES IN NAIROBI</small><h2>Pick the help you need at home.</h2></div>
-        <p>Choose a service to see options, or go straight to book.</p>
+    <section className="home-catalog" id="services">
+      <header className="home-catalog-head">
+        <h2>Services near you</h2>
+        <p>Browse options, or start booking in a few minutes.</p>
       </header>
-      <div className="marketplace-service-grid">
+      <div className="home-catalog-grid">
         {services.map(service => {
           const item = getServicePresentation(service, homeAudience);
-          return <MarketplaceServiceCard key={service.slug} title={item.title} description={item.copy} price={item.price} image={item.image} detailHref={`/services/${service.slug}/home`} actionHref={getBookingHref(service.slug, homeAudience)} actionLabel="Book"/>;
+          return <MarketplaceServiceCard key={service.slug} variant="listing" title={item.title} description={item.copy} price={item.price} image={item.image} detailHref={`/services/${service.slug}/home`} actionHref={getBookingHref(service.slug, homeAudience)} actionLabel="Book"/>;
         })}
       </div>
     </section>
 
-    <section className="marketplace-how" id="how">
-      <header className="marketplace-section-head"><div><small>SIMPLE FROM START TO FINISH</small><h2>Book help without the back-and-forth.</h2></div><p>Keep the scope, timing and updates together from booking to completion.</p></header>
-      <div className="marketplace-step-grid">{[
-        ["01", "Choose what you need", "Select a service and tell us the basics."],
-        ["02", "Pick a place and time", "Choose where and when the work happens."],
-        ["03", "Confirm and track", "Review the details and follow progress."],
-      ].map(step => <article key={step[0]}><span>{step[0]}</span><h3>{step[1]}</h3><p>{step[2]}</p></article>)}</div>
+    <section className="home-how" id="how">
+      <h2>How booking works</h2>
+      <ol>
+        <li><b>Choose a service</b><span>Pick what you need and an option that fits.</span></li>
+        <li><b>Add place and time</b><span>Share the address and a convenient window.</span></li>
+        <li><b>Confirm and track</b><span>Review details, then follow the visit through.</span></li>
+      </ol>
     </section>
 
     <SiteFooter/>
