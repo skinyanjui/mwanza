@@ -62,7 +62,7 @@ export default function GovernmentPage() {
   };
 
   return <main className="gov-page">
-    <SiteHeader/>
+    <SiteHeader shell="government"/>
 
     <section className="gov-hero">
       <div className="gov-hero-copy"><small>MWENZA FOR GOVERNMENT & INSTITUTIONS</small><h1>Essential services, procurement ready.</h1><p>Vetted teams, defined service levels and clear reporting for public facilities across Kenya.</p><div><a href="#procurement">Request a capability review →</a><a href="/government/dashboard?demo=1">Preview institutional workspace</a></div><dl><span><dt>Coverage</dt><dd>Single or multi-site</dd></span><span><dt>Delivery</dt><dd>SLA-led service</dd></span><span><dt>Reporting</dt><dd>One accountable view</dd></span></dl></div>

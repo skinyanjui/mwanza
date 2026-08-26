@@ -42,7 +42,7 @@ export default function BusinessPage() {
   };
 
   return <main className="biz-page">
-    <SiteHeader/>
+    <SiteHeader shell="business"/>
 
     <section className="biz-hero">
       <div className="biz-hero-copy"><div className="eyebrow"><i/> Mwenza /mwen-za/ · your operations companion</div><h1>Everyday operations, <em>handled.</em></h1><p>One accountable partner for cleaning, linen, meals, maintenance, pest prevention, grounds and fleet care.</p><div className="biz-hero-actions"><a href="#quote">Build your service plan →</a><a href="/business/dashboard?demo=1">Preview client workspace</a></div><div className="biz-proof"><span><b>One invoice</b><small>Across every service</small></span><span><b>Vetted teams</b><small>Identity verified</small></span><span><b>Flexible cover</b><small>One visit to managed</small></span></div></div>

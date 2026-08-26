@@ -59,19 +59,23 @@ test("homepage chrome uses the shared brand system", async () => {
   assert.match(html, /<title>Mwenza Kenya \| Essential services, handled\.<\/title>/);
   assert.match(html, /class="skip-link"[^>]*>Skip to content/);
   assert.match(html, /src="\/mwenza-mark\.png"/);
-  assert.match(html, />Business<\/a>/);
-  assert.match(html, />Government<\/a>/);
-  assert.match(html, /class="hero-booking"/);
+  assert.doesNotMatch(html, /class="desktop-links"[^>]*>[\s\S]*?>Business<\/a>/);
+  assert.match(html, /href="\/business"/);
+  assert.match(html, /href="\/government"/);
+  assert.match(html, /class="hero-book-first"/);
   assert.match(html, /role="search"/);
-  assert.match(html, /role="radiogroup"/);
-  assert.match(html, /Book Laundry/);
-  assert.match(html, /href="\/book\?service=laundry"/);
+  assert.match(html, /Book a service/);
+  assert.match(html, /href="\/book"/);
   assert.match(html, /Pick the help you need at home/);
+  assert.doesNotMatch(html, /class="hero-booking"/);
+  assert.doesNotMatch(html, /role="radiogroup"/);
+  assert.doesNotMatch(html, /Book Laundry/);
   assert.doesNotMatch(html, /<select[^>]*aria-label="Choose service"/);
   assert.doesNotMatch(html, /class="marketplace-toggle"/);
   assert.doesNotMatch(html, />For business</);
   assert.doesNotMatch(html, /Life’s tasks, handled/);
   assert.doesNotMatch(html, /Your life, handled/);
+  assert.doesNotMatch(html, /Keep every location running/);
 
   const cssHref = html.match(/href="(\/assets\/index-[^"]+\.css)"/)?.[1];
   assert.ok(cssHref, "expected bundled stylesheet href");
@@ -79,5 +83,5 @@ test("homepage chrome uses the shared brand system", async () => {
   const css = readFileSync(cssPath, "utf8");
   assert.match(css, /geist-sans-variable\.woff2/);
   assert.match(css, /font-family:Geist/);
-  assert.match(css, /\.hero-booking/);
+  assert.match(css, /\.hero-book-first/);
 });

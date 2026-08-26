@@ -1546,3 +1546,101 @@ code, kbd, pre, samp { font-family: var(--font-mono); }
     font-size: var(--type-meta);
   }
 }
+
+/* Dedicated Home shell — book-first hero */
+.marketplace-home-hero-book-first,
+.marketplace-home-hero-book-first .marketplace-hero-content-book-first {
+  min-height: 620px;
+}
+.marketplace-hero-content-book-first {
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 96px;
+  padding-bottom: 72px;
+  max-width: 720px;
+}
+.marketplace-hero-content-book-first .marketplace-hero-copy {
+  max-width: 640px;
+}
+.marketplace-hero-content-book-first .marketplace-hero-copy h1 {
+  margin-bottom: 16px;
+}
+.marketplace-hero-content-book-first .marketplace-hero-copy > p {
+  margin-bottom: 28px;
+  max-width: 34ch;
+}
+.hero-book-first {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+}
+.hero-book-first-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 22px;
+  border-radius: var(--component-radius);
+  background: var(--audience-accent, #1f6b45);
+  color: #fff;
+  font-size: var(--type-control);
+  font-weight: 720;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.hero-book-first-action:hover {
+  filter: brightness(0.95);
+}
+.hero-book-first p {
+  margin: 0;
+  color: #d7e4dc;
+  font-size: var(--type-meta);
+  font-weight: 560;
+}
+.mega-layout-home {
+  grid-template-columns: minmax(0, 1fr);
+}
+.detail-more {
+  margin: 0 var(--page-pad) 48px;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding: 0 var(--page-pad);
+  border-top: 1px solid var(--line, #dce3dd);
+}
+.detail-more > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 22px 0;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ink, #12261c);
+}
+.detail-more > summary::-webkit-details-marker {
+  display: none;
+}
+.detail-more[open] > summary {
+  border-bottom: 1px solid var(--line, #dce3dd);
+  margin-bottom: 28px;
+}
+.detail-more .detail-standard,
+.detail-more .detail-faq {
+  padding-left: 0;
+  padding-right: 0;
+}
+.portal-inline-note {
+  margin: 8px 0 0;
+  color: #66736b;
+  font-size: var(--type-meta);
+}
+@media (max-width: 720px) {
+  .marketplace-home-hero-book-first,
+  .marketplace-home-hero-book-first .marketplace-hero-content-book-first {
+    min-height: 0;
+  }
+  .marketplace-hero-content-book-first {
+    padding-top: 72px;
+    padding-bottom: 48px;
+  }
+}
