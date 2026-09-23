@@ -56,12 +56,30 @@ service cloud.firestore {
         && get(organizationPath(orgId)).data.ownerUid == request.auth.uid;
     }
 
+    function isOrgBilling(orgId) {
+      return isOrgMember(orgId)
+        && get(memberPath(orgId, request.auth.uid)).data.role in ['owner', 'manager', 'billing'];
+    }
+
+    function isOwnerOrOrgMember(data) {
+      return isOperations()
+        || (signedIn() && data.ownerUid == request.auth.uid)
+        || isOrgMember(data.organizationId);
+    }
+
     function bookingPath(bookingId) {
       return /databases/$(database)/documents/bookings/$(bookingId);
     }
 
     function booking(bookingId) {
       return get(bookingPath(bookingId)).data;
+    }
+
+    function isBookingParticipant(bookingId) {
+      return signedIn() && bookingId != null && exists(bookingPath(bookingId))
+        && (booking(bookingId).ownerUid == request.auth.uid
+          || booking(bookingId).assignedProviderUid == request.auth.uid
+          || isOrgMember(booking(bookingId).organizationId));
     }
 
     function serviceRecordMatchesBooking() {
@@ -201,6 +219,146 @@ service cloud.firestore {
         || (signedIn() && resource.data.providerUid == request.auth.uid && hasRole('provider'))
         || isOrgMember(resource.data.organizationId);
       allow update, delete: if isOperations();
+    }
+
+    match /applications/{applicationId} {
+      allow create: if signedIn()
+        && request.resource.data.id == applicationId
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.applicationType in ['job', 'provider', 'franchise']
+        && request.resource.data.status == 'Received';
+      allow read: if isOperations() || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow update, delete: if isOperations();
+    }
+
+    match /businessRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.id == requestId
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.status == 'New lead';
+      allow read: if isOperations() || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow update, delete: if isOperations();
+    }
+
+    match /incidents/{incidentId} {
+      allow read: if isOwnerOrOrgMember(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.id == incidentId
+        && request.resource.data.ownerUid == request.auth.uid
+        && (request.resource.data.organizationId == null || isOrgMember(request.resource.data.organizationId))
+        && (request.resource.data.bookingId == null || isBookingParticipant(request.resource.data.bookingId))
+        && request.resource.data.status == 'Open';
+      allow update, delete: if isOperations();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isOperations() || (signedIn()
+        && (resource.data.recipientUid == request.auth.uid
+          || resource.data.recipientEmail == request.auth.token.email));
+      allow update: if signedIn()
+        && (resource.data.recipientUid == request.auth.uid
+          || resource.data.recipientEmail == request.auth.token.email)
+        && request.resource.data.status == 'Read'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'readAt']);
+      allow create, delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isOwnerOrOrgMember(resource.data);
+      allow write: if false;
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if isOperations() || isOrgMember(resource.data.organizationId);
+      allow write: if false;
+    }
+
+    match /procurementRecords/{recordId} {
+      allow read: if isOperations() || isOrgMember(resource.data.organizationId);
+      allow write: if false;
+    }
+
+    match /files/{fileId} {
+      allow read: if isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || isOrgMember(resource.data.organizationId)
+        || isBookingParticipant(resource.data.bookingId);
+      allow write: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if resource.data.status == 'Published'
+        || isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /providerVerifications/{uid} {
+      allow read: if isOperations() || isSelf(uid);
+      allow write: if false;
+    }
+
+    match /availability/{uid} {
+      allow read: if isOperations() || isSelf(uid);
+      allow create: if isSelf(uid) && hasRole('provider') && request.resource.data.providerUid == uid;
+      allow update: if isOperations() || (isSelf(uid) && hasRole('provider')
+        && request.resource.data.providerUid == resource.data.providerUid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptingWork', 'days', 'windows', 'serviceAreas', 'unavailableUntil', 'updatedAt']));
+      allow delete: if isOperations();
+    }
+
+    match /addresses/{addressId} {
+      allow read: if isOwnerOrOrgMember(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.id == addressId
+        && request.resource.data.ownerUid == request.auth.uid
+        && (request.resource.data.organizationId == null || isOrgManager(request.resource.data.organizationId));
+      allow update: if isOperations()
+        || ((signedIn() && resource.data.ownerUid == request.auth.uid) || isOrgManager(resource.data.organizationId))
+          && request.resource.data.id == resource.data.id
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.organizationId == resource.data.organizationId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['label', 'address', 'latitude', 'longitude', 'instructions', 'isDefault', 'updatedAt']);
+      allow delete: if isOperations()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || isOrgManager(resource.data.organizationId);
+    }
+
+    match /servicePricing/{pricingId} {
+      allow read: if resource.data.active == true || isOperations();
+      allow write: if false;
+    }
+
+    match /outboundWebhooks/{webhookId} {
+      allow read: if isOperations() || isOrgManager(resource.data.organizationId);
+      allow write: if false;
+    }
+
+    match /webhookDeliveries/{deliveryId} {
+      allow read: if isOperations() || isOrgMember(resource.data.organizationId);
+      allow write: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isOperations();
+      allow write: if false;
+    }
+
+    match /inboundWebhookEvents/{eventId} {
+      allow read: if isOperations();
+      allow write: if false;
+    }
+
+    match /webhookSecrets/{secretId} {
+      allow read, write: if false;
+    }
+
+    match /idempotencyKeys/{keyId} {
+      allow read, write: if false;
+    }
+
+    match /rateLimits/{bucketId} {
+      allow read, write: if false;
     }
 
     match /{document=**} {

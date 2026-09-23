@@ -16,6 +16,8 @@ Mwenza is a responsive services marketplace for Kenyan homes, businesses, govern
 - Jobs board with search, filters, and role detail pages
 - Franchise opportunities and territory enquiries
 - Internal operations workspace and service lifecycle APIs
+- Firebase-first `/api/v1` platform with an OpenAPI 3.1 contract, idempotent writes, rate limits, audit logs, and M-Pesa/WhatsApp/CRM webhooks
+- Payments, invoices, procurement, managed uploads, reviews, verification, member RBAC, pricing, availability, addresses, and outbound webhook APIs
 
 ## Run locally
 
@@ -36,11 +38,11 @@ npm run test:firebase-rules
 
 ## Stack
 
-Next.js, React, TypeScript, Vinext, Firebase Authentication, Firestore, Cloud Storage, App Check, Cloudflare Workers/D1, and Drizzle ORM.
+Next.js, React, TypeScript, Vinext, Firebase Authentication, Firebase Admin, Firestore, Cloud Storage, App Check, and Cloudflare Workers.
 
 ## Firebase
 
-The Firebase integration activates when the variables in `.env.example` are configured. Until then, the existing ChatGPT/D1 flows remain available. Setup, deployment, role bootstrap, and enforcement steps are in [docs/firebase-setup.md](docs/firebase-setup.md).
+The Firebase integration activates when the variables in `.env.example` are configured. Browser data flows use Firebase Security Rules; versioned and compatibility HTTP APIs use Firebase Admin with role- and organization-level authorization. Setup, deployment, role bootstrap, TTL, webhook and enforcement steps are in [docs/firebase-setup.md](docs/firebase-setup.md). The API catalog and integration contract are in [docs/api-v1.md](docs/api-v1.md).
 
 ## Live site
 
