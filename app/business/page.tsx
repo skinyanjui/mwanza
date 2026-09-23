@@ -42,7 +42,7 @@ export default function BusinessPage() {
   };
 
   return <main className="biz-page">
-    <SiteHeader/>
+    <SiteHeader shell="business"/>
 
     <section className="biz-hero">
       <div className="biz-hero-copy"><div className="eyebrow"><i/> Mwenza /mwen-za/ · your operations companion</div><h1>Everyday operations, <em>handled.</em></h1><p>One accountable partner for cleaning, linen, meals, maintenance, pest prevention, grounds and fleet care.</p><div className="biz-hero-actions"><a href="#quote">Build your service plan →</a><a href="/business/dashboard?demo=1">Preview client workspace</a></div><div className="biz-proof"><span><b>One invoice</b><small>Across every service</small></span><span><b>Vetted teams</b><small>Identity verified</small></span><span><b>Flexible cover</b><small>One visit to managed</small></span></div></div>
@@ -83,6 +83,6 @@ export default function BusinessPage() {
 
     <section className="biz-faq"><SectionHeading className="biz-section-head left" eyebrow="COMMON QUESTIONS" title="Before we get started."/><div>{[["Can we combine services?","Yes. Cleaning, linen, fundi, fleet and support work can sit under one account and invoice."],["Do you supply equipment?","We can include standard supplies and equipment in your plan or follow your site requirements."],["Can Mwenza cover multiple locations?","Yes. Managed plans coordinate schedules, teams and reporting across multiple sites."],["Are providers vetted?","Mwenza verifies provider identity and assigns work based on the skills required for each service."]].map(item => <details key={item[0]}><summary>{item[0]}<span>+</span></summary><p>{item[1]}</p></details>)}</div></section>
 
-    <SiteFooter/>
+    <SiteFooter shell="business"/>
   </main>;
 }
