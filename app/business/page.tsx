@@ -83,6 +83,6 @@ export default function BusinessPage() {
 
     <section className="biz-faq"><SectionHeading className="biz-section-head left" eyebrow="COMMON QUESTIONS" title="Before we get started."/><div>{[["Can we combine services?","Yes. Cleaning, linen, fundi, fleet and support work can sit under one account and invoice."],["Do you supply equipment?","We can include standard supplies and equipment in your plan or follow your site requirements."],["Can Mwenza cover multiple locations?","Yes. Managed plans coordinate schedules, teams and reporting across multiple sites."],["Are providers vetted?","Mwenza verifies provider identity and assigns work based on the skills required for each service."]].map(item => <details key={item[0]}><summary>{item[0]}<span>+</span></summary><p>{item[1]}</p></details>)}</div></section>
 
-    <SiteFooter/>
+    <SiteFooter shell="business"/>
   </main>;
 }

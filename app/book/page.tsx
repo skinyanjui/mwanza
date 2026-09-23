@@ -50,6 +50,7 @@ export default function BookPage() {
   const [bookingId, setBookingId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [managedEntry, setManagedEntry] = useState(false);
 
   useEffect(() => {
     const timer=window.setTimeout(()=>{const params = new URLSearchParams(window.location.search);
@@ -57,14 +58,23 @@ export default function BookPage() {
       if (requested && serviceKeys.includes(requested)) setService(requested);
       const requestedOption = Number(params.get("option"));
       if (Number.isInteger(requestedOption) && requestedOption >= 0 && requestedOption < 4) setOption(requestedOption);
-      if (params.get("audience") === "business") setCustomerType("Business");
-      if (params.get("audience") === "government") setCustomerType("Government & Institution");
+      const audience = params.get("audience");
+      if (audience === "business") {
+        setCustomerType("Business");
+        setManagedEntry(true);
+      } else if (audience === "government") {
+        setCustomerType("Government & Institution");
+        setManagedEntry(true);
+      }
       const draft = window.localStorage.getItem("mwenza_booking_draft");
       if (draft && !params.get("service")) {
         try {
           const saved = JSON.parse(draft);
           if (saved.service && serviceKeys.includes(saved.service)) setService(saved.service);
-          if (saved.customerType === "Home" || saved.customerType === "Business" || saved.customerType === "Government & Institution") setCustomerType(saved.customerType);
+          if (saved.customerType === "Home" || saved.customerType === "Business" || saved.customerType === "Government & Institution") {
+            setCustomerType(saved.customerType);
+            if (saved.customerType !== "Home") setManagedEntry(true);
+          }
           setOption(Number(saved.option) || 0); setQuantity(Number(saved.quantity) || 5); setAddress(saved.address || ""); setInstructions(saved.instructions || ""); setScope(saved.scope || ""); setCompany(saved.company || ""); setFrequency(saved.frequency || "One time"); setLocations(Number(saved.locations) || 1);
         } catch { window.localStorage.removeItem("mwenza_booking_draft"); }
       }},0); return()=>window.clearTimeout(timer);
@@ -121,7 +131,7 @@ export default function BookPage() {
   const next = () => step < 4 ? setStep(step+1) : submitBooking();
 
   const audienceLabel = isGovernment ? "Government" : customerType;
-  const showAudienceSelector = managedAudience;
+  const showAudienceSelector = managedEntry;
   if (complete) return <main className="booking-page" data-audience={isGovernment ? "government" : customerType === "Business" ? "business" : "home"}><header className="book-nav"><BrandMark/><span>{audienceLabel} booking request</span></header><section className="booking-success"><div className="success-mark">✓</div><small>{audienceLabel.toUpperCase()} REQUEST RECEIVED · {bookingId}</small><h1>You’re all set, {name.split(" ")[0]}.</h1><p>We’ll confirm {managedAudience ? `${company}’s service plan` : "your Mwenza professional"}, final scope and price through {contact}.</p><div className="success-card"><span><small>Service</small><b>{selected[0]}</b></span><span><small>When</small><b>{dates[day].label}, {time}</b></span><span><small>Location</small><b>{address}</b></span><span><small>{managedAudience ? "Frequency" : "Estimated from"}</small><b>{managedAudience ? frequency : `KSh ${total.toLocaleString()}`}</b></span></div><div className="booking-next"><i/><span><b>Request received</b><small>Scope and availability confirmation is next.</small></span><i/><span><b>Professional assigned</b><small>You’ll receive their details before arrival.</small></span></div><div className="success-actions"><a href="/account?view=bookings">Track this booking</a><button onClick={() => {setComplete(false);setStep(1)}}>Book another service</button></div></section></main>;
 
   const stepNames = ["Service","Location","Schedule","Review"];

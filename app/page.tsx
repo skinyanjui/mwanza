@@ -50,6 +50,6 @@ export default function Home() {
       </ol>
     </section>
 
-    <SiteFooter/>
+    <SiteFooter shell="home"/>
   </main>;
 }

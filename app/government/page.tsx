@@ -95,6 +95,6 @@ export default function GovernmentPage() {
       </>}</QuickRequestPanel>
     </section>
 
-    <SiteFooter/>
+    <SiteFooter shell="government"/>
   </main>;
 }

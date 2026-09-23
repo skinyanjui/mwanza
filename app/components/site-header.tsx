@@ -47,6 +47,31 @@ export default function SiteHeader({
   const toggle = (menu: Exclude<Menu, null>) => setOpenMenu(current => current === menu ? null : menu);
   const closeFromLink = (event: React.MouseEvent<HTMLElement>) => { if ((event.target as HTMLElement).closest("a")) setOpenMenu(null); };
 
+  let bookHref: string;
+  let bookLabel: string;
+  let bookHint: string;
+  switch (shell) {
+    case "home":
+      bookHref = "/book";
+      bookLabel = "Book a service";
+      bookHint = "Home services in Nairobi →";
+      break;
+    case "business":
+      bookHref = "/book?audience=business";
+      bookLabel = "Request a plan";
+      bookHint = "Managed plans for workplaces →";
+      break;
+    case "government":
+      bookHref = "/book?audience=government";
+      bookLabel = "Request service";
+      bookHint = "Institutional service requests →";
+      break;
+    default: {
+      const _exhaustive: never = shell;
+      throw new Error(`Unhandled shell: ${_exhaustive}`);
+    }
+  }
+
   return <header className="site-nav" ref={headerRef} data-shell={shell}>
     <BrandMark/>
     <div className="site-nav-right">
@@ -56,7 +81,7 @@ export default function SiteHeader({
           <div className="mega-panel" id="services-mega-panel" onClick={closeFromLink}>
             <div className="mega-heading">
               <div><small>HOME SERVICES</small><b>Choose a service and get started.</b></div>
-              <a href="/book">Book a service →</a>
+              <a href={bookHref}>{bookLabel} →</a>
             </div>
             <div className="mega-layout mega-layout-home">
               <div className="mega-grid">{services.map(service => <a href={service[2]} key={service[0]}><img src={service[3]} alt=""/><span><b>{service[0]}</b><small>{service[1]}</small></span></a>)}</div>
@@ -83,17 +108,17 @@ export default function SiteHeader({
 
       <details className="location-menu" open={openMenu === "location"}>
         <summary aria-expanded={openMenu === "location"} aria-controls="location-panel" onClick={event => { event.preventDefault(); toggle("location"); }}><span>⌖</span> Nairobi <i>⌄</i></summary>
-        <div id="location-panel" onClick={closeFromLink}><small>SERVICE AREA</small><b>Nairobi and surrounding areas</b><p>Westlands · Kilimani · Karen · Lavington · Kileleshwa · Parklands · Runda · Gigiri</p><a href="/book">Check your address</a></div>
+        <div id="location-panel" onClick={closeFromLink}><small>SERVICE AREA</small><b>Nairobi and surrounding areas</b><p>Westlands · Kilimani · Karen · Lavington · Kileleshwa · Parklands · Runda · Gigiri</p><a href={bookHref}>Check your address</a></div>
       </details>
       <a className="account-link" href="/account">{accountLabel}</a>
-      <a className="nav-book" href="/book">Book a service</a>
+      <a className="nav-book" href={bookHref}>{bookLabel}</a>
 
       <details className="mobile-menu" open={openMenu === "mobile"}>
         <summary aria-label={openMenu === "mobile" ? "Close menu" : "Open menu"} aria-expanded={openMenu === "mobile"} aria-controls="mobile-navigation-panel" onClick={event => { event.preventDefault(); toggle("mobile"); }}><span/><span/><span/></summary>
         <button className="mobile-backdrop" aria-label="Close menu" onClick={() => setOpenMenu(null)}/>
         <div className="mobile-panel" id="mobile-navigation-panel" role="dialog" aria-modal="true" aria-label="Main menu" onClick={closeFromLink}>
           <div className="mobile-panel-head"><BrandMark/></div>
-          <div className="mobile-quick-actions"><a href="/book"><b>Book a service</b><span>Home services in Nairobi →</span></a><a href="/account"><b>{accountLabel}</b><span>Bookings and account →</span></a></div>
+          <div className="mobile-quick-actions"><a href={bookHref}><b>{bookLabel}</b><span>{bookHint}</span></a><a href="/account"><b>{accountLabel}</b><span>Bookings and account →</span></a></div>
           <section className="mobile-menu-section">
             <div className="mobile-menu-section-head"><b>Services</b><a href="/#services">View all</a></div>
             <div className="mobile-service-grid">{services.map(service => <a href={service[2]} key={service[0]}><img src={service[3]} alt=""/><span>{service[0]}</span></a>)}</div>
@@ -119,7 +144,7 @@ export default function SiteHeader({
               )}
             </div>
           </section>
-          <div className="mobile-location"><span><b>Nairobi</b><small>Current service area</small></span><a href="/book">Check an address</a></div>
+          <div className="mobile-location"><span><b>Nairobi</b><small>Current service area</small></span><a href={bookHref}>Check an address</a></div>
         </div>
       </details>
     </div>

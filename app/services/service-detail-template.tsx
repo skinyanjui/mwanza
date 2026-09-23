@@ -144,7 +144,7 @@ function HomeListingDetail({ service }: { service: Service }) {
         </div>
       </section>
 
-      <SiteFooter />
+      <SiteFooter shell="home" />
       <div className="detail-mobile-bar listing-mobile-bar">
         <span>
           <small>From</small>
@@ -276,7 +276,7 @@ export default function ServiceDetailTemplate({ service, segment }: { service: S
 
     <section className="detail-next detail-next-marketplace"><small>READY WHEN YOU ARE</small><h2>Let’s get {current.short.toLowerCase()} handled.</h2><p>{presentation.description}</p><div><a href={presentation.bookingHref}>{presentation.actionLabel}</a><a href={presentation.returnHref}>{presentation.returnLabel}</a></div></section>
 
-    <SiteFooter/>
+    <SiteFooter shell={headerShell}/>
     <div className="detail-mobile-bar"><span><small>Pricing</small><b>{presentation.price}</b></span><a href={presentation.bookingHref}>{presentation.actionLabel}</a></div>
   </main>;
 }
