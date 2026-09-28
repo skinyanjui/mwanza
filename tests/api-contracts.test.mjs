@@ -44,3 +44,25 @@ test("Cloud Functions and edge proxy share the same v1 router", () => {
   assert.match(read("app/api/v1/_lib/router.ts"), /FIREBASE_FUNCTIONS_API_URL/);
   assert.match(read("firebase.json"), /functions/);
 });
+
+test("managed booking entry keeps the audience selector mounted", () => {
+  const source = read("app/book/page.tsx");
+  assert.match(source, /const \[managedEntry, setManagedEntry\] = useState\(false\)/);
+  assert.match(source, /setManagedEntry\(true\)/);
+  assert.match(source, /const showAudienceSelector = managedEntry/);
+  assert.doesNotMatch(source, /const showAudienceSelector = managedAudience/);
+});
+
+test("site chrome scopes book CTAs to the active shell", () => {
+  const footer = read("app/components/site-footer.tsx");
+  const header = read("app/components/site-header.tsx");
+  assert.match(footer, /shell\?: Shell/);
+  assert.match(footer, /\/book\?audience=business/);
+  assert.match(footer, /\/book\?audience=government/);
+  assert.match(header, /case "business":/);
+  assert.match(header, /bookHref = "\/book\?audience=business"/);
+  assert.match(header, /bookHref = "\/book\?audience=government"/);
+  assert.match(read("app/business/page.tsx"), /SiteFooter shell="business"/);
+  assert.match(read("app/government/page.tsx"), /SiteFooter shell="government"/);
+  assert.match(read("app/services/service-detail-template.tsx"), /SiteFooter shell=\{headerShell\}/);
+});
